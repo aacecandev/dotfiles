@@ -1,0 +1,35 @@
+local transparent_groups = {
+  "NormalFloat",
+  "FloatBorder",
+  "Pmenu",
+  "Terminal",
+  "EndOfBuffer",
+  "FoldColumn",
+  "Folded",
+  "SignColumn",
+  "NormalNC",
+  "WhichKeyFloat",
+  "TelescopeBorder",
+  "TelescopeNormal",
+  "TelescopePromptBorder",
+  "TelescopePromptTitle",
+  "NotifyINFOBody",
+  "NotifyERRORBody",
+  "NotifyWARNBody",
+  "NotifyTRACEBody",
+  "NotifyDEBUGBody",
+  "NotifyINFOTitle",
+  "NotifyERRORTitle",
+  "NotifyWARNTitle",
+  "NotifyTRACETitle",
+  "NotifyDEBUGTitle",
+  "NotifyINFOBorder",
+  "NotifyERRORBorder",
+  "NotifyWARNBorder",
+  "NotifyTRACEBorder",
+  "NotifyDEBUGBorder",
+}
+
+for _, group in ipairs(transparent_groups) do
+  vim.api.nvim_set_hl(0, group, { bg = "none" })
+end

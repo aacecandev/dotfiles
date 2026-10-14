@@ -1,0 +1,14 @@
+{
+  // markdownlint-cli2 configuration
+  // https://github.com/DavidAnson/markdownlint-cli2
+  "config": {
+    "default": true,
+    "MD013": false, // line length — too noisy for prose/docs
+    "MD033": false, // allow inline HTML (badges, <details>, etc.)
+    "MD041": false  // first line in file need not be a top-level heading
+  },
+  // Third-party / vendored files we do not author.
+  "ignores": [
+    ".config/nvim/**"
+  ]
+}

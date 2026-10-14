@@ -1,0 +1,7 @@
+# Global mise tools config, deployed to ~/.config/mise/config.toml.
+# Tools listed here are installed by `mise install` / `mise bootstrap`.
+[tools]
+neovim = "0.12.6"
+node = "24.21.0" # provides npm and npx
+starship = "1.26.0"
+vim = "9.2.1054"

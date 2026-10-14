@@ -1,0 +1,146 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+add_newline = true
+command_timeout = 2000
+follow_symlinks = false
+palette = 'catppuccin_mocha'
+
+[custom.git_email]
+command = "git config --get user.email"
+symbol = '󰊢 '
+style = 'fg:#595959'
+format = "\n[$symbol($output)]($style)"
+when = "git rev-parse --is-inside-work-tree &>/dev/null"
+require_repo = true
+
+[directory]
+home_symbol = '~'
+read_only = ' '
+read_only_style = 'red'
+truncate_to_repo = true
+truncation_length = 1
+
+[git_branch]
+style = 'fg:green'
+symbol = ' '
+format = '$symbol(white)[$branch ]($style)'
+
+[git_commit]
+style = 'fg:yellow'
+commit_hash_length = 7
+only_detached = true
+tag_disabled = false
+tag_symbol = '󰓹 '
+format = '[\($hash$tag\)]($style) '
+
+[git_metrics]
+added_style = 'bold blue'
+format = '[+$added]($added_style)/[-$deleted]($deleted_style) '
+disabled = true
+
+[git_state]
+format = '[\($state( $progress_current of $progress_total)\)]($style) '
+
+[fill]
+symbol = ' '
+
+[python]
+style = 'teal'
+symbol = ' '
+format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
+pyenv_prefix = ''
+pyenv_version_name = true
+
+[lua]
+symbol = ' '
+format = '[$symbol($version )]($style)'
+
+[nodejs]
+style = 'green'
+symbol = ' '
+format = '[$symbol($version )]($style)'
+
+[golang]
+style = 'blue'
+symbol = ' '
+format = '[$symbol($version )]($style)'
+
+[haskell]
+style = 'blue'
+symbol = ' '
+format = '[$symbol($version )]($style)'
+
+[rust]
+style = 'orange'
+symbol = ' '
+format = '[$symbol($version )]($style)'
+
+[ruby]
+style = 'blue'
+symbol = ' '
+format = '[$symbol($version )]($style)'
+
+[package]
+symbol = '󰏗 '
+format = '[$symbol($version )]($style)'
+
+[aws]
+symbol = " "
+style = 'bold peach'
+format = '[\($symbol $profile\)]($style) '
+disabled = false
+
+[gcloud]
+symbol = ""
+style = 'bold cyan'
+format = '[\($symbol $project\)]($style) '
+# disabled = true
+
+[azure]
+symbol = "󰠅"
+style = 'bold blue'
+format = '[\($symbol $subscription\)]($style) '
+disabled = false
+
+[docker_context]
+symbol = ' '
+style = 'fg:#06969A'
+format = '[$symbol] ($style) $path'
+
+[jobs]
+symbol = ' '
+style = 'red'
+number_threshold = 1
+format = '[$symbol]($style)'
+
+[cmd_duration]
+style = 'fg:gray'
+format = ' [$duration]($style)'
+
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"

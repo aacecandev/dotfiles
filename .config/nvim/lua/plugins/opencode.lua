@@ -1,0 +1,186 @@
+-- https://github.com/nickjvandyke/opencode.nvim
+-- Integrate the opencode AI assistant with Neovim — streamline editor-aware
+-- research, reviews, and requests.
+
+-- config.lua: https://github.com/nickjvandyke/opencode.nvim/blob/main/lua/opencode/config.lua
+--
+-- Default keybindings:
+-- <leader>aa - Toggle OpenCode terminal
+-- <leader>as - Select and send context to OpenCode
+-- <leader>ai - OpenCode ask (free-form prompt)
+-- <leader>aI - OpenCode ask with @this context
+-- <leader>ab - OpenCode ask about current buffer
+-- <leader>ap - OpenCode prompt with @this
+-- <leader>ape - OpenCode explain prompt
+-- <leader>apf - OpenCode fix prompt
+-- <leader>apd - OpenCode diagnose prompt
+-- <leader>apr - OpenCode review prompt
+-- <leader>apt - OpenCode test prompt
+-- <leader>apo - OpenCode optimize prompt
+
+local opencode_cmd = "opencode --port"
+
+local function opencode_terminal_opts()
+  return {
+    win = {
+      position = "right",
+      enter = false,
+    },
+  }
+end
+
+return {
+  "nickjvandyke/opencode.nvim",
+  dependencies = {
+    {
+      "folke/snacks.nvim",
+      opts = {
+        input = {},
+        picker = {
+          actions = {
+            opencode_send = function(picker)
+              local items = vim.tbl_map(function(item)
+                return item.file
+                    and require("opencode").format({ path = item.file, from = item.pos, to = item.end_pos })
+                  or item.text
+              end, picker:selected({ fallback = true }))
+              require("opencode").prompt(table.concat(items, ", ") .. " ")
+            end,
+          },
+          win = {
+            input = {
+              keys = {
+                ["<a-a>"] = { "opencode_send", mode = { "n", "i" } },
+              },
+            },
+          },
+        },
+        terminal = {},
+      },
+    },
+  },
+  config = function()
+    local cfg = require("opencode.config")
+
+    cfg.opts.server.start = function()
+      require("snacks.terminal").open(opencode_cmd, opencode_terminal_opts())
+    end
+
+    cfg.opts.select.server = vim.tbl_deep_extend("force", cfg.opts.select.server or {}, {
+      ["server.start"] = "Start configured server",
+    })
+
+    -- Show terminal when OpenCode starts executing.
+    -- Uses the documented session.execution.started event from opencode.nvim
+    -- (the old tui.command.execute → prompt.submit pattern depended on
+    -- internal TUI event structure that can change without warning).
+    vim.api.nvim_create_autocmd("User", {
+      pattern = { "OpencodeEvent:session.execution.started" },
+      callback = function()
+        local win = require("snacks.terminal").get(opencode_cmd, { create = false })
+        if win then
+          win:show()
+        end
+      end,
+    })
+  end,
+  keys = {
+    {
+      "<leader>aa",
+      function()
+        require("snacks.terminal").toggle(opencode_cmd, opencode_terminal_opts())
+      end,
+      mode = { "n" },
+      desc = "Toggle OpenCode",
+    },
+    {
+      "<leader>as",
+      function()
+        require("opencode").select()
+      end,
+      mode = { "n", "x" },
+      desc = "OpenCode select",
+    },
+    {
+      "<leader>ai",
+      function()
+        require("opencode").ask("")
+      end,
+      mode = { "n", "x" },
+      desc = "OpenCode ask",
+    },
+    {
+      "<leader>aI",
+      function()
+        require("opencode").ask("@this: ")
+      end,
+      mode = { "n", "x" },
+      desc = "OpenCode ask with context",
+    },
+    {
+      "<leader>ab",
+      function()
+        require("opencode").ask("@buffer ")
+      end,
+      mode = { "n", "x" },
+      desc = "OpenCode ask about buffer",
+    },
+    {
+      "<leader>ap",
+      function()
+        require("opencode").prompt("@this")
+      end,
+      mode = { "n", "x" },
+      desc = "OpenCode prompt",
+    },
+    -- Built-in prompts
+    {
+      "<leader>ape",
+      function()
+        require("opencode").prompt("explain")
+      end,
+      mode = { "n", "x" },
+      desc = "OpenCode explain",
+    },
+    {
+      "<leader>apf",
+      function()
+        require("opencode").prompt("fix")
+      end,
+      mode = { "n", "x" },
+      desc = "OpenCode fix",
+    },
+    {
+      "<leader>apd",
+      function()
+        require("opencode").prompt("diagnose")
+      end,
+      mode = { "n", "x" },
+      desc = "OpenCode diagnose",
+    },
+    {
+      "<leader>apr",
+      function()
+        require("opencode").prompt("review")
+      end,
+      mode = { "n", "x" },
+      desc = "OpenCode review",
+    },
+    {
+      "<leader>apt",
+      function()
+        require("opencode").prompt("test")
+      end,
+      mode = { "n", "x" },
+      desc = "OpenCode test",
+    },
+    {
+      "<leader>apo",
+      function()
+        require("opencode").prompt("optimize")
+      end,
+      mode = { "n", "x" },
+      desc = "OpenCode optimize",
+    },
+  },
+}

@@ -1,0 +1,69 @@
+# Put ~/.local/bin (where mise.run installs mise) on PATH before the
+# activation blocks run, so the startup files can call `mise` by name.
+# zsh reads ~/.zshenv first, so the PATH line belongs there.
+[dotfiles]
+"~/.zshenv/local-bin" = { line = 'export PATH="$HOME/.local/bin:$PATH"' }
+
+# Deploy our minimal ~/.zshrc as a symlink into the repo. Because [dotfiles]
+# covers this path, mise does NOT inject its activation block here — the file
+# carries the `eval "$(mise activate zsh)"` line itself.
+# See https://mise.jdx.dev/dotfiles.html
+"~/.zshrc" = { source = ".config/zsh/.zshrc", mode = "symlink" }
+
+# Global mise tools config: symlink it so `mise install` picks up nvim et al.
+"~/.config/mise/config.toml" = { source = ".config/mise/config.toml", mode = "symlink" }
+
+# Starship prompt config: symlink into the repo so edits track in git.
+"~/.config/starship/starship.toml" = { source = ".config/starship/starship.toml", mode = "symlink" }
+
+# vim config: symlink to ~/.vimrc (vim's default) so edits track in git.
+"~/.vimrc" = { source = ".config/vim/.vimrc", mode = "symlink" }
+
+# Neovim config: symlink the whole directory into the repo.
+"~/.config/nvim" = { source = ".config/nvim", mode = "symlink" }
+
+# System packages installed via apt during `mise bootstrap`. This is the single
+# source of truth for OS dependencies — the Dockerfile only installs the bare
+# minimum needed to download mise itself (see install.sh).
+# See https://mise.jdx.dev/bootstrap/packages/apt.html
+[bootstrap.packages]
+"apt:ca-certificates" = "latest"
+"apt:curl" = "latest"
+"apt:fontconfig" = "latest" # provides fc-cache for the Nerd Fonts hook
+"apt:git" = "latest"
+"apt:build-essential" = "latest"
+"apt:zsh" = "latest"
+"apt:unzip" = "latest"
+
+# Shims in ~/.zprofile (login) and full activation in ~/.zshrc (interactive).
+# See https://mise.jdx.dev/bootstrap/shell.html
+[bootstrap.mise_shell_activate]
+zsh = true
+
+# Set the account's login shell to zsh.
+# See https://mise.jdx.dev/bootstrap/shell.html#set-your-login-shell
+[bootstrap.user]
+login_shell = "/usr/bin/zsh"
+
+# Before dotfiles are symlinked, back up any pre-existing (non-managed) Neovim
+# config and data so the ~/.config/nvim symlink can be created without conflict.
+# Guarded on "not already a symlink" so it runs once on migration and is skipped
+# on later bootstraps (otherwise nvim's plugin data would be wiped every run).
+# See https://mise.jdx.dev/bootstrap.html#run-order
+[bootstrap.hooks.pre-dotfiles]
+run = 'if [ -e "${HOME}/.config/nvim" ] && [ ! -L "${HOME}/.config/nvim" ]; then mv -f "${HOME}/.config/nvim" "${HOME}/.config/nvim.bak" >/dev/null 2>&1 || true; mv -f "${HOME}/.local/share/nvim" "${HOME}/.local/share/nvim.bak" >/dev/null 2>&1 || true; mv -f "${HOME}/.local/state/nvim" "${HOME}/.local/state/nvim.bak" >/dev/null 2>&1 || true; mv -f "${HOME}/.cache/nvim" "${HOME}/.cache/nvim.bak" >/dev/null 2>&1 || true; fi'
+
+# After tools install, bootstrap vim-plug and install Nerd Fonts.
+# See https://mise.jdx.dev/bootstrap.html#hooks
+[bootstrap.hooks.post-tools]
+run = [
+  # vim-plug (pinned) so vim can manage plugins.
+  'mkdir -p "${HOME}/.vim/autoload/plugged"',
+  'curl -fLo "${HOME}/.vim/autoload/plug.vim" --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/0.14.0/plug.vim',
+  # Install the plugins declared in ~/.vimrc (headless, non-interactive).
+  'mise exec -- vim -E -s -u "${HOME}/.vimrc" +PlugInstall +qall || true',
+  # Nerd Fonts (pinned) into ~/.local/share/fonts, then refresh the font cache.
+  'mkdir -p "${HOME}/.local/share/fonts"',
+  'for f in Hack JetBrainsMono FiraCode; do if ls "${HOME}/.local/share/fonts/${f}"*.ttf >/dev/null 2>&1; then echo "Nerd Font ${f} already installed, skipping"; else curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/${f}.zip" -o "/tmp/${f}.zip" && unzip -oq "/tmp/${f}.zip" -d "${HOME}/.local/share/fonts" && rm -f "/tmp/${f}.zip"; fi; done',
+  'fc-cache -f',
+]
