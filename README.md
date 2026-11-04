@@ -63,7 +63,7 @@ It builds the image, runs `install.sh` twice in a fresh container (the second
 run checks the bootstrap is idempotent), then runs `tests/checks.sh` inside it:
 dotfile symlinks, tools on `PATH`, login shell, clean zsh startup, vim-plug,
 and Nerd Fonts. Each run writes its logs to `logs/<UTC timestamp>/`
-(`build.log`, `install.log`, `reinstall.log`, `checks.log`); any failure is
+(`build.log`, `start.log`, `install.log`, `reinstall.log`, `checks.log`); any failure is
 collected in `errors.log` there and the script exits non-zero. `logs/` is
 git-ignored.
 

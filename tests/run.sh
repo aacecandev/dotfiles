@@ -17,7 +17,11 @@ errors="$log_dir/errors.log"
 mkdir -p "$log_dir"
 
 cleanup() { docker rm -f "$container" >/dev/null 2>&1 || true; }
-trap cleanup EXIT INT TERM
+# On Ctrl-C or kill, stop the run (exit fires the EXIT trap) instead of
+# carrying on with the remaining steps.
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 status=0
 record() {
@@ -46,13 +50,14 @@ step() {
 
 if step build docker build -t "$image" "$root"; then
     # tests/ is mounted read-only so the image itself stays unchanged.
-    docker run -d --name "$container" \
+    if step start docker run -d --name "$container" \
         -v "$root/tests:/home/test/dotfiles/tests:ro" \
-        "$image" sleep infinity >/dev/null
-    step install docker exec "$container" sh install.sh
-    step reinstall docker exec "$container" sh install.sh
-    if ! step checks docker exec "$container" sh tests/checks.sh; then
-        grep '^FAIL' "$log_dir/checks.log" | sed 's/^/[checks] /' >>"$errors"
+        "$image" sleep infinity; then
+        step install docker exec "$container" sh install.sh
+        step reinstall docker exec "$container" sh install.sh
+        if ! step checks docker exec "$container" sh tests/checks.sh; then
+            grep '^FAIL' "$log_dir/checks.log" | sed 's/^/[checks] /' >>"$errors"
+        fi
     fi
 fi
 
