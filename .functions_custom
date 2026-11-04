@@ -1,0 +1,19 @@
+# Custom shell functions. Managed by mise dotfiles, deployed to
+# ~/.functions_custom and sourced from ~/.zshrc.
+
+# Generate a Conventional Commit message for the staged diff with Claude
+# (headless, sonnet) and commit it signed-off. Extra args are passed as hints.
+claude-commit() {
+  local diff msg
+  diff="$(git diff --cached)" || return 1
+  if [[ -z "$diff" ]]; then
+    print -u2 "claude-commit: nothing staged"
+    return 1
+  fi
+  msg="$(print -r -- "$diff" | claude -p --model sonnet --tools "" \
+    "Write a Conventional Commit message for the staged git diff on stdin. \
+Subject line max 72 chars, optional body wrapped at 72. \
+Output ONLY the raw message: no code fences, no preamble, no AI attribution. $*")" || return 1
+  [[ -z "$msg" ]] && { print -u2 "claude-commit: empty message"; return 1; }
+  git commit -s -m "$msg"
+}
