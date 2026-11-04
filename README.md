@@ -67,6 +67,15 @@ and Nerd Fonts. Each run writes its logs to `logs/<UTC timestamp>/`
 collected in `errors.log` there and the script exits non-zero. `logs/` is
 git-ignored.
 
+GitHub Actions (`.github/workflows/ci.yml`) runs `pre-commit run --all-files`
+and `sh tests/run.sh` on every pull request and push to `main`, and uploads
+`logs/` as the `test-logs` artifact. When both pass on `main`, it tags the
+commit with the next [semantic version](https://semver.org) based on the
+[Conventional Commits](https://www.conventionalcommits.org/) since the last
+`v*` tag: a breaking change (`type!:` or `BREAKING CHANGE:`) bumps major,
+`feat` bumps minor, and `fix` or `perf` bumps patch. Other commit types do not
+create a tag.
+
 To explore a bootstrapped container by hand:
 
 ```sh

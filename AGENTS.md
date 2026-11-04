@@ -176,10 +176,17 @@ Each rule gives the alternative to use instead.
 
 ## Continuous integration
 
-There is no hosted CI. The gates are local. `pre-commit` runs at both the
-`pre-commit` and `pre-push` stages (see `default_stages`), and the Docker test
-is the integration check. Run both before you hand off work. If you add hosted
-CI later, it must run the same commands listed in [Commands](#commands).
+`pre-commit` runs locally at both the `pre-commit` and `pre-push` stages (see
+`default_stages`), and the Docker test is the integration check. Run both
+before you hand off work.
+
+GitHub Actions (`.github/workflows/ci.yml`) runs the same two commands from
+[Commands](#commands) on every pull request and push to `main`. On `main`, a
+green run tags the commit with the next semantic version derived from the
+Conventional Commits since the last `v*` tag (breaking change: major, `feat`:
+minor, `fix`/`perf`: patch, anything else: no tag). Commit types therefore
+decide versions; pick them deliberately. Actions are pinned to commit SHAs
+with the release tag in a comment. Keep it that way.
 
 ## Commits, review, and delivery
 
