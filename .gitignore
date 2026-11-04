@@ -1,0 +1,3 @@
+# Test run logs (tests/run.sh); keep the directory itself.
+logs/*
+!logs/.gitkeep
