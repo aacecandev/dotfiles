@@ -21,9 +21,10 @@ pre-commit run --files <path> [<path> ...]
 # One gate only, e.g. shellcheck / markdownlint-cli2 / yamllint / gitleaks-docker
 pre-commit run shellcheck --files install.sh
 
-# End-to-end bootstrap test in a disposable container (never on the host)
-docker build -t dotfiles-test .
-docker run --rm dotfiles-test sh -c 'sh install.sh && zsh -ic exit'
+# End-to-end test in a disposable container (never on the host):
+# build, install, reinstall (idempotence), then tests/checks.sh.
+# Logs land in logs/<UTC timestamp>/; failures are collected in errors.log.
+sh tests/run.sh
 
 # Inspect a bootstrapped container interactively
 docker run -d --name dots dotfiles-test && docker logs -f dots
@@ -34,10 +35,11 @@ docker rm -f dots
 stylua .config/nvim
 ```
 
-A bootstrap test passes only when it exits with `0` and prints no
-`mise ERROR`. For a new symlink, also check that it resolves inside the
-container (`ls -l ~/<target>`). For a new shell function, check that it
-loads (`zsh -ic 'whence -w <name>'`).
+A test run passes only when `tests/run.sh` exits with `0`; on failure, read
+`errors.log` in the newest `logs/` directory. `[dotfiles]` symlinks are
+checked automatically from `mise.toml`. When you add a tool, package, or
+other installed artifact, add a matching assertion to `tests/checks.sh` in
+the same change.
 
 ## What this repository is
 
@@ -65,6 +67,8 @@ pulls.
 | `.config/nvim/` | Neovim config (LazyVim), plugin lock in `lazy-lock.json` |
 | `install.sh` | POSIX entry point: prerequisites, mise, `mise bootstrap` |
 | `Dockerfile` | Disposable Ubuntu 26.04 image used to test the bootstrap |
+| `tests/` | `run.sh` (host-side runner) and `checks.sh` (in-container assertions) |
+| `logs/` | Test run logs and `errors.log`; git-ignored, never commit its contents |
 | `.pre-commit-config.yaml` | Lint, format, and secret-scanning gates |
 
 Each kind of change belongs in one place:

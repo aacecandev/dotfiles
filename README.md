@@ -53,8 +53,21 @@ bootstrap from there.
 
 ## Testing
 
-A `Dockerfile` provides a disposable Ubuntu environment to validate the
-bootstrap end to end:
+Run the end-to-end test suite (needs Docker):
+
+```sh
+sh tests/run.sh
+```
+
+It builds the image, runs `install.sh` twice in a fresh container (the second
+run checks the bootstrap is idempotent), then runs `tests/checks.sh` inside it:
+dotfile symlinks, tools on `PATH`, login shell, clean zsh startup, vim-plug,
+and Nerd Fonts. Each run writes its logs to `logs/<UTC timestamp>/`
+(`build.log`, `install.log`, `reinstall.log`, `checks.log`); any failure is
+collected in `errors.log` there and the script exits non-zero. `logs/` is
+git-ignored.
+
+To explore a bootstrapped container by hand:
 
 ```sh
 docker build -t dotfiles .
@@ -74,3 +87,5 @@ docker exec -it dots zsh -l
 | `.config/vim/.vimrc` | Vim config (vim-plug) |
 | `.config/nvim/` | Neovim config (LazyVim) |
 | `install.sh` | Entry point that installs mise and runs bootstrap |
+| `tests/` | End-to-end test runner (`run.sh`) and post-install checks (`checks.sh`) |
+| `logs/` | Test run logs and `errors.log` (git-ignored) |
