@@ -5,3 +5,9 @@ neovim = "0.12.6"
 node = "24.21.0" # provides npm and npx
 starship = "1.26.0"
 vim = "9.2.1054"
+# Go toolchain; also required by the go: backend below.
+# https://mise.jdx.dev/lang/go.html
+go = "1.27.3"
+# Kubernetes TUI, built from source with `go install` via mise's go backend.
+# https://mise.jdx.dev/dev-tools/backends/go.html
+"go:github.com/derailed/k9s" = "0.51.0"

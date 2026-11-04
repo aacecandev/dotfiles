@@ -8,9 +8,9 @@ system packages, pinned CLI tools, shell, prompt, editors, and fonts.
 
 - **System packages** (apt): `build-essential`, `curl`, `fontconfig`, `git`,
   `unzip`, `zsh`, and TLS roots.
-- **Pinned tools** (mise `[tools]`): Neovim, Vim, Starship, and Node (which
-  provides `npm` and `npx`). Every tool is pinned to an exact version for
-  reproducibility.
+- **Pinned tools** (mise `[tools]`): Neovim, Vim, Starship, Node (which
+  provides `npm` and `npx`), Go, and k9s (built from source by mise's `go:`
+  backend). Every tool is pinned to an exact version for reproducibility.
 - **Shell**: `zsh` with Starship as the prompt (Catppuccin Mocha).
 - **Editors**: Vim with vim-plug (plugins installed headlessly) and a LazyVim
   based Neovim config.
