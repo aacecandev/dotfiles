@@ -26,6 +26,9 @@ pre-commit run shellcheck --files install.sh
 # Logs land in logs/<UTC timestamp>/; failures are collected in errors.log.
 sh tests/run.sh
 
+# Interactive aarch64 Termux shell under QEMU (manual, privileged)
+mise run test:arm64
+
 # Inspect a bootstrapped container interactively
 docker run -d --name dots dotfiles-test && docker logs -f dots
 docker exec -it dots zsh -l
