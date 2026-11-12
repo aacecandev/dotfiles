@@ -162,8 +162,7 @@ Each rule gives the alternative to use instead.
   difference in the container.
 - Keep `.config/nvim/lazy-lock.json` in sync with plugin changes. Do not bump
   plugins you were not asked to bump.
-- Keep changes cross-platform where it is cheap. `.zshrc` already handles
-  macOS (`gdate`), so do not remove that.
+- Keep changes cross-platform where it is cheap.
 
 ## Security
 
