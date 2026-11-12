@@ -67,3 +67,16 @@ run = [
   'for f in Hack JetBrainsMono FiraCode; do if ls "${HOME}/.local/share/fonts/${f}"*.ttf >/dev/null 2>&1; then echo "Nerd Font ${f} already installed, skipping"; else curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/${f}.zip" -o "/tmp/${f}.zip" && unzip -oq "/tmp/${f}.zip" -d "${HOME}/.local/share/fonts" && rm -f "/tmp/${f}.zip"; fi; done',
   'fc-cache -f',
 ]
+
+# Interactive aarch64 shell (Termux) under QEMU emulation, with this checkout
+# mounted read-only at ~/dotfiles. Images are pinned by digest (tag in comment).
+# https://github.com/dbhi/qus  https://github.com/termux/termux-docker
+[tasks."test:arm64"]
+description = "Open an emulated aarch64 Termux shell with the dotfiles mounted"
+raw = true # attach the TTY so the container shell is interactive
+run = [
+  # Register QEMU binfmt handlers for aarch64/arm (skipped if already registered). aptman/qus:latest
+  "[ -e /proc/sys/fs/binfmt_misc/qemu-aarch64 ] || docker run --rm --privileged aptman/qus@sha256:144a554404cd43721301d5163c278fc3b00d910476197f66357faaa1cd85f4c0 -s -- -p aarch64 arm",
+  # termux/termux-docker:aarch64
+  "docker run -it --rm --privileged --platform linux/arm64 -v \"$PWD:/data/data/com.termux/files/home/dotfiles:ro\" termux/termux-docker@sha256:d0415618cbbf8433a23cf5bddb198eeb62bcba1243ccfc1d015b2f464bd609d5",
+]

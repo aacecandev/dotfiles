@@ -59,6 +59,10 @@ Run the end-to-end test suite (needs Docker):
 sh tests/run.sh
 ```
 
+For a manual check on aarch64, `mise run test:arm64` registers QEMU emulation
+and opens an interactive Termux shell with this checkout mounted read-only at
+`~/dotfiles`. It runs privileged containers and is not part of CI.
+
 It builds the image, runs `install.sh` twice in a fresh container (the second
 run checks the bootstrap is idempotent), then runs `tests/checks.sh` inside it:
 dotfile symlinks, tools on `PATH`, login shell, clean zsh startup, vim-plug,
