@@ -29,7 +29,13 @@ jobs:
         run: pipx run pre-commit==4.7.0 run --all-files --show-diff-on-failure
 
       # End-to-end bootstrap test in a disposable container.
+      # GITHUB_TOKEN lifts mise's GitHub API rate limit; tests/run.sh forwards
+      # it into the container by name. The automatic token is enough (no
+      # repository secret needed; secret names cannot start with GITHUB_).
+      # https://docs.github.com/en/actions/concepts/security/github_token
       - name: Bootstrap test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: sh tests/run.sh
 
       # actions/upload-artifact v7.0.2

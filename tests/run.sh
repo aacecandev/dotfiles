@@ -53,8 +53,9 @@ if step build docker build -t "$image" "$root"; then
     if step start docker run -d --name "$container" \
         -v "$root/tests:/home/test/dotfiles/tests:ro" \
         "$image" sleep infinity; then
-        step install docker exec "$container" sh install.sh
-        step reinstall docker exec "$container" sh install.sh
+        # Forward GITHUB_TOKEN by name only so its value never hits argv or logs.
+        step install docker exec -e GITHUB_TOKEN "$container" sh install.sh
+        step reinstall docker exec -e GITHUB_TOKEN "$container" sh install.sh
         if ! step checks docker exec "$container" sh tests/checks.sh; then
             grep '^FAIL' "$log_dir/checks.log" | sed 's/^/[checks] /' >>"$errors"
         fi

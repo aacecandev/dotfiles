@@ -1,3 +1,6 @@
 # Test run logs (tests/run.sh); keep the directory itself.
 logs/*
 !logs/.gitkeep
+
+# Machine-local mise config (age-encrypted GITHUB_TOKEN); see docs/github-token.md.
+mise.local.toml

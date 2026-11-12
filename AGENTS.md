@@ -24,7 +24,8 @@ pre-commit run shellcheck --files install.sh
 # End-to-end test in a disposable container (never on the host):
 # build, install, reinstall (idempotence), then tests/checks.sh.
 # Logs land in logs/<UTC timestamp>/; failures are collected in errors.log.
-sh tests/run.sh
+# Requires GITHUB_TOKEN age-encrypted in mise.local.toml; see docs/github-token.md.
+mise exec -- sh tests/run.sh
 
 # Interactive aarch64 Termux shell under QEMU (manual, privileged)
 mise run test:arm64
@@ -71,6 +72,7 @@ pulls.
 | `install.sh` | POSIX entry point: prerequisites, mise, `mise bootstrap` |
 | `Dockerfile` | Disposable Ubuntu 26.04 image used to test the bootstrap |
 | `tests/` | `run.sh` (host-side runner) and `checks.sh` (in-container assertions) |
+| `docs/` | Contributor guides (e.g. `github-token.md` for test setup) |
 | `logs/` | Test run logs and `errors.log`; git-ignored, never commit its contents |
 | `.pre-commit-config.yaml` | Lint, format, and secret-scanning gates |
 
