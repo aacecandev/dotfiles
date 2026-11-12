@@ -68,6 +68,13 @@ run = [
   'fc-cache -f',
 ]
 
+# Run the end-to-end test suite in a disposable Docker container via `mise test`.
+# Delegates to tests/run.sh (the single entry point); never runs on the host.
+# See https://mise.jdx.dev/tasks/
+[tasks.test]
+description = "Build, bootstrap, and test the dotfiles in a disposable container"
+run = "sh tests/run.sh"
+
 # Interactive aarch64 shell (Termux) under QEMU emulation, with this checkout
 # mounted read-only at ~/dotfiles. Images are pinned by digest (tag in comment).
 # https://github.com/dbhi/qus  https://github.com/termux/termux-docker
