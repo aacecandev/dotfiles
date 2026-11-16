@@ -38,6 +38,7 @@
 "apt:build-essential" = "latest"
 "apt:zsh" = "latest"
 "apt:unzip" = "latest"
+"apt:trash-cli" = "latest"
 
 # Shims in ~/.zprofile (login) and full activation in ~/.zshrc (interactive).
 # See https://mise.jdx.dev/bootstrap/shell.html

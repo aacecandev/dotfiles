@@ -53,7 +53,9 @@ run_bootstrap() {
     echo "Trusting mise config..."
     mise trust -y -a
     echo "Running mise bootstrap..."
-    mise bootstrap --yes
+    # --force-dotfiles refreshes managed symlinks that already exist, so a
+    # reinstall redeploys updated configs instead of silently skipping them.
+    mise bootstrap --yes --force-dotfiles
 }
 
 main() {
