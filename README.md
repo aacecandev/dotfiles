@@ -53,11 +53,20 @@ bootstrap from there.
 
 ## Testing
 
-Run the end-to-end test suite (needs Docker):
+Run the end-to-end test suite (needs Docker and a `GITHUB_TOKEN` stored in
+mise):
 
 ```sh
-sh tests/run.sh
+mise exec -- sh tests/run.sh
 ```
+
+`GITHUB_TOKEN` is required: without it the GitHub API rate limit runs out
+and `install` fails with `HTTP 403`. Store it age-encrypted in the untracked
+`mise.local.toml` with
+`mise set --age-encrypt --prompt --file mise.local.toml GITHUB_TOKEN`.
+[docs/github-token.md](docs/github-token.md) is the step-by-step guide
+(age key, token creation, and why not the tracked `mise.toml`). CI needs no
+setup: the workflow passes the automatic `secrets.GITHUB_TOKEN`.
 
 For a manual check on aarch64, `mise run test:arm64` registers QEMU emulation
 and opens an interactive Termux shell with this checkout mounted read-only at
@@ -101,4 +110,5 @@ docker exec -it dots zsh -l
 | `.config/nvim/` | Neovim config (LazyVim) |
 | `install.sh` | Entry point that installs mise and runs bootstrap |
 | `tests/` | End-to-end test runner (`run.sh`) and post-install checks (`checks.sh`) |
+| `docs/` | Guides, such as setting up `GITHUB_TOKEN` for the tests |
 | `logs/` | Test run logs and `errors.log` (git-ignored) |
