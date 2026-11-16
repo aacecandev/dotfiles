@@ -1,0 +1,308 @@
+#compdef cloudflared
+
+_cloudflared() {
+  local line state
+
+  local -a global_options=(
+    '(-h --help)'{-h,--help}'[Show help]'
+    '(-v -V --version)'{-v,-V,--version}'[Print the version]'
+    '--output[Output format for logs]:format:(default json)'
+    '--credentials-file[Filepath for tunnel credentials]:file:_files'
+    '--cred-file[Filepath for tunnel credentials]:file:_files'
+    '--region[Cloudflare Edge region]:region:'
+    '--edge-ip-version[Edge IP version]:version:(4 6 auto)'
+    '--edge-bind-address[Bind address for outgoing connections]:address:'
+    '--label[Label for this connector]:label:'
+    '(--post-quantum --pq)'{--post-quantum,--pq}'[Create post-quantum secure tunnel]'
+    '--management-diagnostics[Enable diagnostic routes over management service]'
+    '(-f --overwrite-dns)'{-f,--overwrite-dns}'[Overwrite existing DNS records]'
+    '--proxy-dns[Run as DNS proxy]'
+    '--proxy-dns-port[DNS proxy port]:port:'
+    '--proxy-dns-address[DNS proxy address]:address:'
+    '*--proxy-dns-upstream[DNS upstream]:upstream:'
+    '--proxy-dns-max-upstream-conns[Max upstream connections]:count:'
+    '*--proxy-dns-bootstrap[DNS bootstrap]:bootstrap:'
+  )
+
+  _arguments -C \
+    "${global_options[@]}" \
+    '1: :->command' \
+    '*::arg:->args'
+
+  case $state in
+    command)
+      local -a commands=(
+        'update:Update the agent if a new version exists'
+        'version:Print the version'
+        'proxy-dns:DNS proxy (no longer supported)'
+        'tail:Stream logs from a remote cloudflared'
+        'service:Manage the cloudflared system service'
+        'access:Cloudflare Access commands'
+        'tunnel:Manage Cloudflare Tunnels'
+        'help:Show help'
+      )
+      _describe -t commands 'cloudflared command' commands
+      ;;
+    args)
+      case ${line[1]} in
+        update)
+          _arguments \
+            '(-h --help)'{-h,--help}'[Show help]' \
+            '--beta[Update to latest beta version]' \
+            '--version[Specific version to install]:version:'
+          ;;
+        tail)
+          _arguments \
+            '(-h --help)'{-h,--help}'[Show help]' \
+            '--connector-id[Connector ID to access]:id:' \
+            '*--event[Filter by event type]:event:(cloudflared http tcp udp)' \
+            '--level[Filter by log level]:level:(debug info warn error)' \
+            '--sample[Sample rate (0.0 .. 1.0)]:rate:' \
+            '--token[Access token for tunnel]:token:' \
+            '--loglevel[Application log level]:level:(debug info warn error fatal)' \
+            '--origincert[Path to origin certificate]:file:_files' \
+            '--output[Output format]:format:(default json)'
+          ;;
+        service)
+          _cloudflared_service
+          ;;
+        access|forward)
+          _cloudflared_access
+          ;;
+        tunnel)
+          _cloudflared_tunnel
+          ;;
+        help|h)
+          local -a help_commands=(
+            'update:Update the agent'
+            'version:Print the version'
+            'proxy-dns:DNS proxy'
+            'tail:Stream logs'
+            'service:Manage system service'
+            'access:Cloudflare Access'
+            'tunnel:Cloudflare Tunnel'
+          )
+          _describe -t commands 'command' help_commands
+          ;;
+      esac
+      ;;
+  esac
+}
+
+_cloudflared_service() {
+  local line state
+
+  _arguments -C \
+    '(-h --help)'{-h,--help}'[Show help]' \
+    '1: :->command' \
+    '*::arg:->args'
+
+  case $state in
+    command)
+      local -a commands=(
+        'install:Install cloudflared as a system service'
+        'uninstall:Uninstall the cloudflared service'
+        'help:Show help'
+      )
+      _describe -t commands 'service command' commands
+      ;;
+  esac
+}
+
+_cloudflared_access() {
+  local line state
+
+  _arguments -C \
+    '(-h --help)'{-h,--help}'[Show help]' \
+    '--fedramp[Use FedRAMP account]' \
+    '1: :->command' \
+    '*::arg:->args'
+
+  case $state in
+    command)
+      local -a commands=(
+        'login:Login to an Access application'
+        'curl:Curl an Access-protected URL'
+        'token:Get token for an Access application'
+        'tcp:TCP proxy'
+        'rdp:RDP proxy'
+        'ssh:SSH proxy'
+        'smb:SMB proxy'
+        'ssh-config:Generate SSH config'
+        'ssh-gen:Generate SSH keys'
+        'help:Show help'
+      )
+      _describe -t commands 'access command' commands
+      ;;
+    args)
+      case ${line[1]} in
+        curl)
+          _arguments \
+            '(-ar --allow-request)'{-ar,--allow-request}'[Allow request]' \
+            '*:url:'
+          ;;
+        login|token)
+          _arguments '1:url:'
+          ;;
+      esac
+      ;;
+  esac
+}
+
+_cloudflared_tunnel() {
+  local line state
+
+  local -a tunnel_options=(
+    '(-h --help)'{-h,--help}'[Show help]'
+    '--config[Config file]:file:_files'
+    '--origincert[Origin certificate path]:file:_files'
+    '--autoupdate-freq[Autoupdate frequency]:duration:'
+    '--no-autoupdate[Disable autoupdate]'
+    '--no-prechecks[Skip connectivity prechecks]'
+    '--metrics[Metrics listen address]:address:'
+    '--pidfile[PID file path]:file:_files'
+    '--url[Local webserver URL]:url:'
+    '--hello-world[Run Hello World server]'
+    '--socks5[Run as SOCKS5 server]'
+    '--proxy-connect-timeout[HTTP proxy connect timeout]:duration:'
+    '--loglevel[Application log level]:level:(debug info warn error fatal)'
+    '(--post-quantum --pq)'{--post-quantum,--pq}'[Post-quantum secure tunnel]'
+    '--management-diagnostics[Enable diagnostic routes]'
+    '(-f --overwrite-dns)'{-f,--overwrite-dns}'[Overwrite existing DNS records]'
+    '--credentials-file[Tunnel credentials file]:file:_files'
+    '--cred-file[Tunnel credentials file]:file:_files'
+    '--region[Cloudflare Edge region]:region:'
+    '--edge-ip-version[Edge IP version]:version:(4 6 auto)'
+    '--edge-bind-address[Outgoing connection bind address]:address:'
+    '--label[Connector label]:label:'
+  )
+
+  _arguments -C \
+    "${tunnel_options[@]}" \
+    '1: :->command' \
+    '*::arg:->args'
+
+  case $state in
+    command)
+      local -a commands=(
+        'login:Generate a configuration file with login details'
+        'create:Create a new tunnel'
+        'route:Define traffic routing to this tunnel'
+        'vnet:Configure virtual networks'
+        'run:Proxy a local web server by running a tunnel'
+        'list:List existing tunnels'
+        'ready:Call /ready endpoint'
+        'info:List active connector details'
+        'delete:Delete a tunnel'
+        'cleanup:Cleanup tunnel connections'
+        'token:Fetch credentials token for a tunnel'
+        'diag:Create a diagnostic report'
+        'proxy-dns:DNS proxy (no longer supported)'
+        'help:Show help'
+      )
+      _describe -t commands 'tunnel command' commands
+      ;;
+    args)
+      case ${line[1]} in
+        create)
+          _arguments '1:tunnel name:'
+          ;;
+        run)
+          _arguments \
+            "${tunnel_options[@]}" \
+            '1:tunnel name or ID:'
+          ;;
+        delete|cleanup|info|token|ready)
+          _arguments '1:tunnel name or ID:'
+          ;;
+        list)
+          _arguments \
+            '(-d --show-deleted)'{-d,--show-deleted}'[Include deleted tunnels]' \
+            '--name[Filter by name]:name:' \
+            '--id[Filter by ID]:id:'
+          ;;
+        route)
+          _cloudflared_tunnel_route
+          ;;
+        vnet)
+          _cloudflared_tunnel_vnet
+          ;;
+      esac
+      ;;
+  esac
+}
+
+_cloudflared_tunnel_route() {
+  local line state
+
+  _arguments -C \
+    '(-h --help)'{-h,--help}'[Show help]' \
+    '1: :->command' \
+    '*::arg:->args'
+
+  case $state in
+    command)
+      local -a commands=(
+        'dns:Route a hostname via DNS CNAME record'
+        'lb:Use tunnel as a load balancer origin'
+        'ip:Configure WARP routing to private IP networks'
+        'help:Show help'
+      )
+      _describe -t commands 'route command' commands
+      ;;
+    args)
+      case ${line[1]} in
+        dns)
+          _arguments \
+            '1:tunnel name or ID:' \
+            '2:hostname:'
+          ;;
+        lb)
+          _arguments \
+            '1:tunnel name or ID:' \
+            '2:hostname:' \
+            '3:load balancer pool:'
+          ;;
+        ip)
+          _arguments \
+            '1:network CIDR:' \
+            '2:tunnel name or ID:'
+          ;;
+      esac
+      ;;
+  esac
+}
+
+_cloudflared_tunnel_vnet() {
+  local line state
+
+  _arguments -C \
+    '(-h --help)'{-h,--help}'[Show help]' \
+    '1: :->command' \
+    '*::arg:->args'
+
+  case $state in
+    command)
+      local -a commands=(
+        'add:Add a new virtual network'
+        'list:List virtual networks'
+        'delete:Delete a virtual network'
+        'update:Update a virtual network'
+        'help:Show help'
+      )
+      _describe -t commands 'vnet command' commands
+      ;;
+    args)
+      case ${line[1]} in
+        add)
+          _arguments '1:vnet name:'
+          ;;
+        delete|update)
+          _arguments '1:vnet name or ID:'
+          ;;
+      esac
+      ;;
+  esac
+}
+
+_cloudflared "$@"

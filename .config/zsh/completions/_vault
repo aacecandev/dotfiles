@@ -1,0 +1,16 @@
+#compdef vault
+# Native zsh completion for HashiCorp Vault.
+#
+# Vault ships no static completion script: `vault -autocomplete-install` only
+# appends `complete -o nospace -C vault vault` to ~/.zshrc, which needs
+# bashcompinit. That line makes the shell run vault with COMP_LINE/COMP_POINT
+# set, and vault prints one candidate per line (github.com/posener/complete).
+# This function speaks the same protocol directly, so no bashcompinit is needed.
+
+local line="${words[1,CURRENT-1]} ${PREFIX}"
+local -a candidates
+candidates=(${(f)"$(COMP_LINE="${line}" COMP_POINT=${#line} command "${words[1]}" 2>/dev/null)"})
+
+# Paths ending in "/" keep the cursor attached so the next segment can follow.
+compadd -S '' -- ${(M)candidates:#*/}
+compadd -- ${candidates:#*/}
