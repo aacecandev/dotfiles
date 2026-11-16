@@ -1,0 +1,29 @@
+# Template for mise.local.toml, the git-ignored, machine-local mise config.
+#
+#   cp mise.local.toml.example mise.local.toml
+#   $EDITOR mise.local.toml
+#   mise trust mise.local.toml
+#   mise dot apply ~/.config/git/config
+#
+# Every variable is documented in docs/private-settings.md. Unset or empty
+# values render nothing. Never commit the real file: it holds personal data.
+
+[vars]
+# Needed to commit: git refuses to guess an identity (user.useConfigOnly).
+git_name = "Your Name"
+git_email = "you@example.com"
+
+# Optional: SSH public key (path or "key::ssh-ed25519 AAAA..."). Setting it
+# also turns on commit signing.
+# git_signingkey = "~/.ssh/id_ed25519.pub"
+
+# Optional: host whose credentials git saves in plain text in
+# ~/.git-credentials (helper = store).
+# git_credential_url = "https://git.example.com"
+
+# Only needed to run tests/run.sh: GITHUB_TOKEN, age-encrypted.
+# Do not write it by hand; follow docs/github-token.md, which adds:
+# [settings]
+# experimental = true
+# [env]
+# GITHUB_TOKEN = { age = "..." }

@@ -40,8 +40,9 @@ stylua .config/nvim
 ```
 
 A test run passes only when `tests/run.sh` exits with `0`; on failure, read
-`errors.log` in the newest `logs/` directory. `[dotfiles]` symlinks are
-checked automatically from `mise.toml`. When you add a tool, package, or
+`errors.log` in the newest `logs/` directory. `[dotfiles]` entries with
+`mode = "symlink"` are checked automatically from `mise.toml`; other modes
+(such as `template`) need explicit checks. When you add a tool, package, or
 other installed artifact, add a matching assertion to `tests/checks.sh` in
 the same change.
 
@@ -51,7 +52,9 @@ Personal dotfiles driven entirely by [mise](https://mise.jdx.dev). A single
 `mise bootstrap` turns a clean Ubuntu machine into a configured environment:
 apt packages, pinned CLI tools, zsh, Starship, Vim, Neovim (LazyVim), and
 Nerd Fonts. Every managed file is deployed into `$HOME` as a **symlink** back
-into this checkout.
+into this checkout. The exception is a file that needs machine-private
+values: it is rendered from a template into a regular file (today only
+`~/.config/git/config`).
 
 **`main` is production.** Machines bootstrap straight from `main`, either
 from a clone or with `mise bootstrap --from <repo-url>`. There is no release
@@ -63,16 +66,20 @@ pulls.
 
 | Path | Owns |
 | --- | --- |
-| `mise.toml` | Bootstrap: `[dotfiles]` symlinks, `[bootstrap.packages]`, hooks, login shell |
+| `mise.toml` | Bootstrap: `[dotfiles]` entries, `[vars]` defaults, `[bootstrap.packages]`, hooks, login shell |
 | `.config/mise/config.toml` | Pinned tool versions (`[tools]`) |
 | `.config/zsh/` | Shell startup (`.zshrc`) and custom functions (`.functions_custom`) |
 | `.config/starship/starship.toml` | Prompt theme |
 | `.config/vim/.vimrc` | Vim config (vim-plug) |
 | `.config/nvim/` | Neovim config (LazyVim), plugin lock in `lazy-lock.json` |
+| `.config/git/config.tera` | Git config template rendered to `~/.config/git/config` |
+| `.config/git/ignore` | Global gitignore, symlinked to `~/.config/git/ignore` |
 | `install.sh` | POSIX entry point: prerequisites, mise, `mise bootstrap` |
 | `Dockerfile` | Disposable Ubuntu 26.04 image used to test the bootstrap |
 | `tests/` | `run.sh` (host-side runner) and `checks.sh` (in-container assertions) |
-| `docs/` | Contributor guides (e.g. `github-token.md` for test setup) |
+| `docs/` | Guides: `private-settings.md` (required `mise.local.toml` vars), `github-token.md` (test setup) |
+| `mise.local.toml` | Git-ignored, machine-local: private `[vars]` and the encrypted `GITHUB_TOKEN`. Never commit it; only the owner writes it |
+| `mise.local.toml.example` | Tracked, commented template for `mise.local.toml`; lists every private var with a placeholder |
 | `logs/` | Test run logs and `errors.log`; git-ignored, never commit its contents |
 | `.pre-commit-config.yaml` | Lint, format, and secret-scanning gates |
 
@@ -89,6 +96,25 @@ Each kind of change belongs in one place:
   `.zshrc`.
 - **Post-install steps** (downloads, plugin installs) go in
   `[bootstrap.hooks.*]` in `mise.toml`, not in `install.sh`.
+- **Machine-private values** (name, email, signing keys, employer hosts) go
+  in `[vars]` of the git-ignored `mise.local.toml`. Render them from a
+  `mode = "template"` source (see `.config/git/config.tera`). Never hardcode
+  them in tracked files. The full list of variables and what each one
+  renders is in [docs/private-settings.md](docs/private-settings.md).
+  **Every time a private variable is added, renamed, removed, or changes what
+  it renders, update `docs/private-settings.md` and `mise.local.toml.example`
+  in the same commit** (the guide's Variables table, plus "What happens
+  without them" if the effect of a missing value changes). Users read the
+  guide and copy the example to fill in `mise.local.toml`. A variable missing
+  from either is a bug, even if the tests pass. To add a variable, do all of
+  the following in the same change:
+  - declare it with an empty default under `[vars]` in `mise.toml`;
+  - render it under `{% if vars.<name> %}` so an empty value renders nothing;
+  - add its row to the Variables table in `docs/private-settings.md`;
+  - add it with a placeholder value and a one-line comment to
+    `mise.local.toml.example` (commented out if optional);
+  - assert it in `tests/checks.sh` with a dummy value, as the existing
+    `git_*` checks do.
 
 Follow the existing files as reference: `mise.toml` shows how dotfiles,
 packages, and hooks are declared, and `.config/zsh/.zshrc` shows how optional
@@ -118,7 +144,9 @@ Each rule gives the alternative to use instead.
    machine-specific identifiers. This repository is public.
    *Instead:* read secrets at runtime from environment variables or a
    secrets manager, and keep machine-local overrides in untracked files
-   that the shell sources only if they exist.
+   that the shell sources only if they exist. For values a deployed config
+   needs, use `[vars]` in `mise.local.toml` (see
+   [docs/private-settings.md](docs/private-settings.md)).
 2. **Never run the bootstrap on the host.** `install.sh` and
    `mise bootstrap` install packages with `sudo`, change the login shell,
    move existing configs to `*.bak`, and overwrite files in `$HOME`.
@@ -163,6 +191,14 @@ Each rule gives the alternative to use instead.
 - Keep `.config/nvim/lazy-lock.json` in sync with plugin changes. Do not bump
   plugins you were not asked to bump.
 - Keep changes cross-platform where it is cheap.
+- A `mode = "template"` target is a regular file that every apply
+  overwrites. Edit the `.tera` source, never the target, and keep plain
+  `mode = "symlink"` for any file that holds no private values. Template
+  sources must not contain literal `{{`, `{%`, or `{#` outside Tera tags.
+- To read git config the way git does, query without a scope from outside a
+  repository (`git -C "$HOME" config --get <key>`). `git config --global`
+  reads only `~/.gitconfig` once that file exists, so it misses the rendered
+  `~/.config/git/config`.
 
 ## Security
 
@@ -202,7 +238,10 @@ with the release tag in a comment. Keep it that way.
   logical change per commit, and proof that the gates and the bootstrap test
   passed.
 - Update `README.md` and this file in the same commit whenever behavior,
-  layout, or commands change.
+  layout, or commands change. Update `docs/private-settings.md` and
+  `mise.local.toml.example` in the same commit whenever a private `[vars]`
+  entry changes (see
+  [Architecture](#architecture)).
 - Work on a branch, never directly on `main`. Pushing, opening pull requests,
   and merging are the owner's decisions.
 - Preserve uncommitted work you did not make. Never use `git reset --hard`,
