@@ -106,21 +106,6 @@ export LESS_TERMCAP_us=$'\E[04;38;5;111m' # begin underline
 # zoxide init
 (type zoxide &>/dev/null) && eval "$(zoxide init zsh)"
 
-# worktrunk init
-if command -v wt &>/dev/null; then
-    wt_command="$(command -v wt)"
-    if [[ "${wt_command}" == *bin* ]]; then
-        wt_cache_dir="${XDG_CACHE_HOME:-${HOME}/.cache}/zsh"
-        wt_cache_file="${wt_cache_dir}/worktrunk-init.zsh"
-        if [[ ! -r "${wt_cache_file}" || "${wt_command}" -nt "${wt_cache_file}" ]]; then
-            mkdir -p "${wt_cache_dir}" && command wt config shell init zsh >|"${wt_cache_file}"
-        fi
-        [ -r "${wt_cache_file}" ] && source "${wt_cache_file}"
-    fi
-    unset wt_command wt_cache_dir wt_cache_file
-fi
-
-
 ######################################################################
 # load zsh sources
 
