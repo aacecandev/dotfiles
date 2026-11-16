@@ -30,8 +30,9 @@ repos:
     rev: v0.11.0
     hooks:
       - id: shellcheck
-        # ShellCheck has no zsh support, so skip zsh config files.
-        exclude: '(^|/)\.zshrc$'
+        # ShellCheck has no zsh support, so skip zsh config files and the
+        # bundled zsh completion functions under .config/zsh/completions/.
+        exclude: '(^|/)\.zshrc$|^\.config/zsh/completions/'
         args:
           - --norc
           - --check-sourced

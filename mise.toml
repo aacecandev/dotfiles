@@ -11,6 +11,8 @@
 "~/.zshrc" = { source = ".config/zsh/.zshrc", mode = "symlink" }
 "~/.zshrc_base" = { source = ".config/zsh/.zshrc_base", mode = "symlink" }
 "~/.functions_custom" = { source = ".config/zsh/.functions_custom", mode = "symlink" }
+# zsh completions directory: symlink it so `.zshrc` can add it to FPATH.
+"~/.zsh/completions" = { source = ".config/zsh/completions", mode = "symlink" }
 
 # Global mise tools config: symlink it so `mise install` picks up nvim et al.
 "~/.config/mise/config.toml" = { source = ".config/mise/config.toml", mode = "symlink" }

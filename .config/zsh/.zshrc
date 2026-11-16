@@ -57,9 +57,7 @@ export XDG_CONFIG_HOME="${HOME}/.config"
 export XDG_DATA_HOME="${HOME}/.local/share"
 
 FPATH_DIRS=(
-    "${HOME}/.completions"
-    "${HOME}/.docker/completions"
-    "${HOME}/.zsh/zsh-completions/src"
+    "${HOME}/.zsh/completions"
 )
 for i in "${FPATH_DIRS[@]}"; do
     [ -d "${i}" ] && FPATH+=":${i}"
