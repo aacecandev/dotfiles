@@ -20,11 +20,6 @@ done
 export PATH="${PATH}"
 unset PATH_DIRS PATH_PREFIX
 
-# # TODO: shell completion with carapace
-# export CARAPACE_BRIDGES='zsh'
-# zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
-# source <(carapace _carapace)
-
 # pnpm
 [ -d "${HOME}/.local/share/pnpm" ] && export PNPM_HOME="${HOME}/.local/share/pnpm"
 
