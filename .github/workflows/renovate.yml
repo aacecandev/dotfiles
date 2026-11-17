@@ -32,3 +32,7 @@ jobs:
           RENOVATE_ONBOARDING: "false"
           RENOVATE_REQUIRE_CONFIG: "required"
           RENOVATE_PLATFORM_COMMIT: "enabled"
+          # Author commits as the token owner (public noreply address) instead
+          # of Renovate's default Mend-owned account, which GitHub flags as
+          # Unverified. https://github.com/renovatebot/renovate/discussions/39309
+          RENOVATE_GIT_AUTHOR: "aacecandev <21305300+aacecandev@users.noreply.github.com>"
