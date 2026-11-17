@@ -44,7 +44,7 @@ $entries
 EOF
 
 # Tools must be on PATH in a login + interactive zsh, as the user sees it.
-for tool in mise zsh git curl unzip fc-cache starship sheldon nvim vim node npm go k9s fd trash; do
+for tool in mise zsh git curl unzip fc-cache starship sheldon nvim vim node npm go k9s fd trash rtk; do
     check "tool on PATH: $tool" zsh -lic "command -v $tool"
 done
 
