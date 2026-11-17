@@ -1,0 +1,34 @@
+# Renovate: open PRs that bump the pinned tool versions in
+# .config/mise/config.toml (config in .github/renovate.json).
+# https://docs.renovatebot.com/modules/manager/mise/
+#
+# RENOVATE_TOKEN is a fine-grained PAT (not GITHUB_TOKEN, so Renovate's PRs
+# trigger the ci workflow). Required permissions: docs/renovate.md.
+name: renovate
+
+on:
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: renovate
+  cancel-in-progress: false
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # renovatebot/github-action v46.3.14
+      - uses: renovatebot/github-action@acdd6bda8b035c99ce59d5675816af2aa65a1774
+        with:
+          token: ${{ secrets.RENOVATE_TOKEN }}
+        env:
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          RENOVATE_ONBOARDING: "false"
+          RENOVATE_REQUIRE_CONFIG: "required"
+          RENOVATE_PLATFORM_COMMIT: "enabled"

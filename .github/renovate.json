@@ -1,0 +1,14 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "enabledManagers": ["mise"],
+  "mise": {
+    "managerFilePatterns": ["/^\\.config/mise/config\\.toml$/"]
+  },
+  "semanticCommits": "enabled",
+  "semanticCommitType": "chore",
+  "semanticCommitScope": "mise",
+  "prConcurrentLimit": 10,
+  "schedule": ["before 6am on monday"],
+  "timezone": "Europe/Madrid"
+}
