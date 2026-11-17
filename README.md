@@ -130,6 +130,7 @@ docker exec -it dots zsh -l
 | `mise.toml` | Bootstrap config: packages, dotfiles, private-value defaults, hooks |
 | `.config/mise/config.toml` | Pinned tool versions |
 | `.config/zsh/.zshrc` | Shell startup (mise activation + Starship) |
+| `.config/sheldon/plugins.toml` | Zsh plugins (sheldon), pinned to release tags |
 | `.config/starship/starship.toml` | Prompt theme |
 | `.config/vim/.vimrc` | Vim config (vim-plug) |
 | `.config/nvim/` | Neovim config (LazyVim) |

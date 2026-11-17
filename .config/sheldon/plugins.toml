@@ -1,0 +1,24 @@
+# Zsh plugins managed by sheldon, deployed to ~/.config/sheldon/plugins.toml.
+# sheldon itself is pinned in .config/mise/config.toml. Plugins are sourced
+# in the order listed here, and each is pinned to an exact release tag.
+# The first shell after a change downloads them (`sheldon lock`).
+# See https://sheldon.cli.rs/Configuration.html
+shell = "zsh"
+
+# Real-time completion menu; runs compinit itself, so it must load first.
+# https://github.com/marlonrichert/zsh-autocomplete
+[plugins.zsh-autocomplete]
+github = "marlonrichert/zsh-autocomplete"
+tag = "26.08.04"
+
+# Fish-like inline suggestions from history.
+# https://github.com/zsh-users/zsh-autosuggestions
+[plugins.zsh-autosuggestions]
+github = "zsh-users/zsh-autosuggestions"
+tag = "v0.7.1"
+
+# Command-line highlighting; must load last so it wraps every widget.
+# https://github.com/zsh-users/zsh-syntax-highlighting
+[plugins.zsh-syntax-highlighting]
+github = "zsh-users/zsh-syntax-highlighting"
+tag = "0.8.0"

@@ -17,6 +17,9 @@
 # Global mise tools config: symlink it so `mise install` picks up nvim et al.
 "~/.config/mise/config.toml" = { source = ".config/mise/config.toml", mode = "symlink" }
 
+# Zsh plugin list for sheldon: symlink into the repo so edits track in git.
+"~/.config/sheldon/plugins.toml" = { source = ".config/sheldon/plugins.toml", mode = "symlink" }
+
 # Starship prompt config: symlink into the repo so edits track in git.
 "~/.config/starship/starship.toml" = { source = ".config/starship/starship.toml", mode = "symlink" }
 

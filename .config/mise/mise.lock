@@ -3346,6 +3346,46 @@ checksum = "sha256:393488513aed286d7a5a978a1fe79b2f5a8802927242a2d241ff10c1a8e8c
 url = "https://github.com/pre-commit/pre-commit/releases/download/v4.7.0/pre-commit-4.7.0.pyz"
 url_api = "https://api.github.com/repos/pre-commit/pre-commit/releases/assets/637459099"
 
+[[tools.sheldon]]
+version = "0.8.5"
+backend = "aqua:rossmacarthur/sheldon"
+specifiers = ["0.8.5"]
+
+[tools.sheldon."platforms.linux-arm64"]
+checksum = "sha256:1f6b792e49e259f7c313e9921c8d4ad638d827abc2c023efe0588a55678f9a3e"
+url = "https://github.com/rossmacarthur/sheldon/releases/download/0.8.5/sheldon-0.8.5-aarch64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/rossmacarthur/sheldon/releases/assets/275183538"
+
+[tools.sheldon."platforms.linux-arm64-musl"]
+checksum = "sha256:1f6b792e49e259f7c313e9921c8d4ad638d827abc2c023efe0588a55678f9a3e"
+url = "https://github.com/rossmacarthur/sheldon/releases/download/0.8.5/sheldon-0.8.5-aarch64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/rossmacarthur/sheldon/releases/assets/275183538"
+
+[tools.sheldon."platforms.linux-x64"]
+checksum = "sha256:80aa0be617072c278d67fd6c5fbce4903d3801d78b6abf8f058f0648d2242c78"
+url = "https://github.com/rossmacarthur/sheldon/releases/download/0.8.5/sheldon-0.8.5-x86_64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/rossmacarthur/sheldon/releases/assets/275183514"
+
+[tools.sheldon."platforms.linux-x64-baseline"]
+checksum = "sha256:80aa0be617072c278d67fd6c5fbce4903d3801d78b6abf8f058f0648d2242c78"
+url = "https://github.com/rossmacarthur/sheldon/releases/download/0.8.5/sheldon-0.8.5-x86_64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/rossmacarthur/sheldon/releases/assets/275183514"
+
+[tools.sheldon."platforms.linux-x64-musl"]
+checksum = "sha256:80aa0be617072c278d67fd6c5fbce4903d3801d78b6abf8f058f0648d2242c78"
+url = "https://github.com/rossmacarthur/sheldon/releases/download/0.8.5/sheldon-0.8.5-x86_64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/rossmacarthur/sheldon/releases/assets/275183514"
+
+[tools.sheldon."platforms.linux-x64-musl-baseline"]
+checksum = "sha256:80aa0be617072c278d67fd6c5fbce4903d3801d78b6abf8f058f0648d2242c78"
+url = "https://github.com/rossmacarthur/sheldon/releases/download/0.8.5/sheldon-0.8.5-x86_64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/rossmacarthur/sheldon/releases/assets/275183514"
+
+[tools.sheldon."platforms.macos-arm64"]
+checksum = "sha256:6e47f10a25f165b095eb2bde1ab617d4d34ad6f3ff2ca984167ca94fadd52730"
+url = "https://github.com/rossmacarthur/sheldon/releases/download/0.8.5/sheldon-0.8.5-aarch64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/rossmacarthur/sheldon/releases/assets/275183435"
+
 [[tools.shellcheck]]
 version = "0.11.0"
 backend = "aqua:koalaman/shellcheck"

@@ -6,6 +6,10 @@ set -u
 
 cd "$(dirname "$0")/.." || exit 1
 
+# `docker exec` without -t leaves TERM unset; a real terminal always sets it,
+# and zsh-autocomplete reads terminfo keys (e.g. kcbt) during startup.
+export TERM="${TERM:-xterm-256color}"
+
 failures=0
 pass() { printf 'PASS %s\n' "$1"; }
 fail() {
@@ -40,7 +44,7 @@ $entries
 EOF
 
 # Tools must be on PATH in a login + interactive zsh, as the user sees it.
-for tool in mise zsh git curl unzip fc-cache starship nvim vim node npm go k9s fd trash; do
+for tool in mise zsh git curl unzip fc-cache starship sheldon nvim vim node npm go k9s fd trash; do
     check "tool on PATH: $tool" zsh -lic "command -v $tool"
 done
 
@@ -54,6 +58,10 @@ if [ -z "$startup_err" ]; then
 else
     fail "zsh login startup has no stderr output: $startup_err"
 fi
+
+# sheldon loads every zsh plugin in an interactive shell (and zsh survives it).
+check 'zsh plugins load (autocomplete, autosuggestions, syntax-highlighting)' zsh -lic \
+    '(( $+functions[.autocomplete__main] )) && (( $+functions[_zsh_autosuggest_start] )) && (( $+functions[_zsh_highlight] ))'
 
 check 'vim-plug installed' test -f "$HOME/.vim/autoload/plug.vim"
 check 'vim loads ~/.vimrc headless' zsh -lic 'vim -E -s -u ~/.vimrc +qall'
