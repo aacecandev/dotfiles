@@ -5,6 +5,19 @@
 # Add your custom functions below
 ################################################################
 
+
+#===============================================================
+# Create a directory and cd into it
+function mkcd() {
+	mkdir -p "$@" && cd "$_";
+}
+
+#===============================================================
+# https://docs.gitignore.io/install/command-line
+function gi() {
+  curl -sLw '\n' "https://www.toptal.com/developers/gitignore/api/${(j:,:)@}"
+}
+
 #===============================================================
 # fix yubikey detection (restart pcscd + gpg-agent)
 function fix-yubikey() {
