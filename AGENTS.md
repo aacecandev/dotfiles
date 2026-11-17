@@ -241,7 +241,12 @@ tool upgrade.
 - Use [Conventional Commits](https://www.conventionalcommits.org/)
   (`feat:`, `fix:`, `chore:`, `docs:`, ...). Keep the subject line at 72
   characters or fewer.
-- Do not add AI attribution or `Co-Authored-By` trailers.
+- Commit with `git commit -s` so every commit carries a `Signed-off-by`
+  trailer.
+- Never mention AI tools in commits: no AI attribution, no
+  `Co-Authored-By` trailers for AI tools, and no tool or model names in the
+  subject or body. The same applies to pull request titles and
+  descriptions.
 - Agent-made changes meet the same bar as any other change: small diffs, one
   logical change per commit, and proof that the gates and the bootstrap test
   passed.
