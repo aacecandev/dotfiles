@@ -55,12 +55,18 @@ vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "Ls
 -- replace backward slash
 vim.keymap.set("n", "<leader>rbs", "<cmd>%s/\\//g<CR>", { desc = "Replace Backward Slash" })
 
--- telescope
-vim.keymap.set("n", "<leader>tgb", "<cmd>Telescope git_branches<cr>", { desc = "Telescope git_branches" })
-vim.keymap.set("n", "<leader>tgc", "<cmd>Telescope git_commits<cr>", { desc = "Telescope git_commits" })
+-- git pickers (snacks)
+vim.keymap.set("n", "<leader>tgb", function()
+  Snacks.picker.git_branches()
+end, { desc = "Git branches" })
+vim.keymap.set("n", "<leader>tgc", function()
+  Snacks.picker.git_log()
+end, { desc = "Git commits" })
 
--- telescope-symbols
-vim.keymap.set("n", "<leader>fs", "<cmd>Telescope symbols<cr>", { desc = "Find Symbols" })
+-- icons and emoji picker (snacks)
+vim.keymap.set("n", "<leader>fs", function()
+  Snacks.picker.icons()
+end, { desc = "Find Icons" })
 
 -- these keep the cursor in the middle when scrolling with C-d and C-u
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
