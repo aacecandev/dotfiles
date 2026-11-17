@@ -78,7 +78,7 @@ pulls.
 | `install.sh` | POSIX entry point: prerequisites, mise, `mise bootstrap` |
 | `Dockerfile` | Disposable Ubuntu 26.04 image used to test the bootstrap |
 | `tests/` | `run.sh` (host-side runner) and `checks.sh` (in-container assertions) |
-| `docs/` | Guides: `private-settings.md` (required `mise.local.toml` vars), `github-token.md` (test setup), `renovate.md` (tool updates, `RENOVATE_TOKEN`) |
+| `docs/` | Guides: `private-settings.md` (required `mise.local.toml` vars), `github-token.md` (test setup), `renovate.md` (tool updates, `RENOVATE_TOKEN`), `neovim-shortcuts.md` (custom Neovim keymaps) |
 | `mise.local.toml` | Git-ignored, machine-local: private `[vars]` and the encrypted `GITHUB_TOKEN`. Never commit it; only the owner writes it |
 | `mise.local.toml.example` | Tracked, commented template for `mise.local.toml`; lists every private var with a placeholder |
 | `logs/` | Test run logs and `errors.log`; git-ignored, never commit its contents |
@@ -191,6 +191,10 @@ Each rule gives the alternative to use instead.
   difference in the container.
 - Keep `.config/nvim/lazy-lock.json` in sync with plugin changes. Do not bump
   plugins you were not asked to bump.
+- **Every time a Neovim plugin or keymap is added, removed, or changed,
+  update [docs/neovim-shortcuts.md](docs/neovim-shortcuts.md) in the same
+  commit.** A keymap missing from that guide is a bug, even if the tests
+  pass.
 - Keep changes cross-platform where it is cheap.
 - A `mode = "template"` target is a regular file that every apply
   overwrites. Edit the `.tera` source, never the target, and keep plain

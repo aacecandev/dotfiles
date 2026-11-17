@@ -5,10 +5,14 @@ return {
     "zbirenbaum/copilot.lua",
     enabled = true,
   },
-  -- Enable just ONE at a time 
+  -- Enable just ONE of opencode.nvim / claudecode.nvim at a time:
+  -- both use the <leader>a keymap group.
   {
     "nickjvandyke/opencode.nvim",
+    enabled = false,
+  },
+  {
+    "coder/claudecode.nvim",
     enabled = true,
   },
-  -- Enable just ONE at a time 
 }

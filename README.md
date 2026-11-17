@@ -138,6 +138,6 @@ docker exec -it dots zsh -l
 | `.config/git/ignore` | Global gitignore (patterns ignored in every repo) |
 | `install.sh` | Entry point that installs mise and runs bootstrap |
 | `tests/` | End-to-end test runner (`run.sh`) and post-install checks (`checks.sh`) |
-| `docs/` | Guides: private settings in `mise.local.toml`, `GITHUB_TOKEN` for the tests |
+| `docs/` | Guides: private settings in `mise.local.toml`, `GITHUB_TOKEN` for the tests, Neovim shortcuts |
 | `mise.local.toml.example` | Template to copy into the untracked `mise.local.toml` |
 | `logs/` | Test run logs and `errors.log` (git-ignored) |
