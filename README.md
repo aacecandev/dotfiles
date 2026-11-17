@@ -26,13 +26,18 @@ file.
 
 ## Usage
 
-On a clean machine, clone the repo and run the installer:
+On a clean machine, clone the repo, add your private settings, and run the
+installer:
 
 ```sh
 git clone https://github.com/aacecandev/dotfiles.git ~/dotfiles
 cd ~/dotfiles
+cp mise.local.toml.example mise.local.toml   # set git_name and git_email
 sh install.sh
 ```
+
+What to prepare beforehand and where each file lives is in
+[docs/private-settings.md](docs/private-settings.md#before-you-install).
 
 `install.sh` installs mise, trusts the config, and runs `mise bootstrap`.
 Symlinks point into `~/dotfiles`, so the checkout is the stable home for the
