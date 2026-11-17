@@ -5,6 +5,7 @@ Neovim plugins managed by [lazy.nvim](https://github.com/folke/lazy.nvim).
 | File / Plugin                                                                                                | What it does                                                                                   |
 | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
 | [bullets.vim](https://github.com/bullets-vim/bullets.vim) (`bullets.lua`)                                    | Auto-creates bullet points on new lines in markdown and plain text — respects indentation      |
+| [claudecode.nvim](https://github.com/coder/claudecode.nvim) (`claudecode.lua`)                               | Claude Code IDE integration — send selections and buffers, review and accept diffs in-editor |
 | [copilot.lua](https://github.com/zbirenbaum/copilot.lua) (`copilot.lua`)                                     | Pure Lua GitHub Copilot — auto-trigger suggestions, no telemetry, no Electron                  |
 | [gitsigns.nvim](https://github.com/lewis6991/gitsigns.nvim) (`gitsigns.lua`)                                 | Git decorations in the sign column — inline blame, hunk staging, navigation, and diff previews |
 | [goto-preview](https://github.com/rmagatti/goto-preview) (`goto-preview.lua`)                                | Floating popup for LSP definitions, declarations, implementations, and type definitions        |
@@ -19,6 +20,7 @@ Neovim plugins managed by [lazy.nvim](https://github.com/folke/lazy.nvim).
 | [obsidian.nvim](https://github.com/obsidian-nvim/obsidian.nvim) (`obsidian.lua`)                             | Full Obsidian vault workflow from Neovim — notes, daily notes, templates, wiki links, tags     |
 | [opencode.nvim](https://github.com/NickvanDyke/opencode.nvim) (`opencode.lua`)                               | Agentic AI assistance — research, code reviews, explanations, and inline prompts in-editor     |
 | [pi-nvim](https://github.com/carderne/pi-nvim) (`pi-nvim.lua`)                                               | Bridge between pi coding agent and Neovim — send files, selections, prompts from editor to pi  |
+| [precognition.nvim](https://github.com/tris203/precognition.nvim) (`precognition.lua`)                       | Virtual-text hints for the motions available from the cursor — learn Vim movements           |
 | [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) (`render-markdown.lua`) | Rich in-buffer markdown rendering — headings, checkboxes, callouts, code blocks, links         |
 | [resolve.nvim](https://github.com/spacedentist/resolve.nvim) (`resolve.lua`)                                 | Resolve merge conflicts in-editor with an interactive workflow                                 |
 | [screenkey.nvim](https://github.com/NStefan002/screenkey.nvim) (`screenkey.lua`)                             | Shows pressed keys in a floating window — essential for demos and screencasts                  |

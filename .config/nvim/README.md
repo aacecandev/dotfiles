@@ -7,7 +7,7 @@ This Neovim configuration is built for fast, focused editing: strong navigation,
 - **Fast project movement** — Snacks-powered picker, explorer, grep, and Git helpers keep navigation close to the keyboard.
 - **Readable writing environment** — Markdown preview, rendered markdown, table-of-contents generation, bullets, and Obsidian integration make notes and docs first-class citizens.
 - **Git context in the editor** — Gitsigns exposes blame, hunks, diffs, staging, and navigation where the work happens.
-- **AI workflow ready** — Copilot and OpenCode are configured as editor-native assistants instead of detached side tools.
+- **AI workflow ready** — Copilot, Claude Code and OpenCode (one at a time) are configured as editor-native assistants instead of detached side tools.
 - **Terminal-native ergonomics** — tmux navigation, floating file labels, undo history, and multiple cursors keep daily editing smooth.
 - **Presentation-safe** — Screenkey helps demos, while Veil hides secrets when streaming or sharing a screen.
 - **Ops-friendly extras** — Ansible, Helm, and SOPS support make infrastructure files easier to edit safely.
