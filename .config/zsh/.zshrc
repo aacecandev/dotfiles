@@ -32,15 +32,9 @@ setopt complete_in_word
 setopt always_to_end
 export ZSH_HIGHLIGHT_MAXLENGTH=300
 
-# zsh-autocomplete config (async enabled, PR #856 FD leak fix applied locally)
+# zsh-autocomplete config (plugins are loaded by sheldon, see .config/sheldon/plugins.toml)
 # Real-time type-ahead: ON. Tab: fzf ** triggers → fallback to autocomplete's complete-word.
-# zsh-autosuggestions excluded (segfault issue #725 with autocomplete).
 zstyle ':autocomplete:*' min-input 1
-#
-# NOTE: PR #856 fix applied locally to ~/.zsh/zsh-autocomplete/Functions/Init/.autocomplete__async
-#   https://github.com/marlonrichert/zsh-autocomplete/pull/856
-# Fixed: variable name typo in async:clear() + TTY check replaced with FD peek (3 locations).
-# Once PR is merged upstream: cd ~/.zsh/zsh-autocomplete && git reset --hard && git pull --rebase (local patch will be replaced)
 
 # Low-cost completion display tweaks. Do not override zsh-autocomplete's matcher-list.
 zstyle ':completion:*' squeeze-slashes true
@@ -69,6 +63,9 @@ eval "$(mise activate zsh)"
 
 # load ~/.zshrc_base (setup)
 [ -r "${HOME}/.zshrc_base" ] && source "${HOME}/.zshrc_base"
+
+# load zsh plugins via sheldon (after ~/.zshrc_base, so syntax highlighting wraps every widget)
+(type sheldon &>/dev/null) && eval "$(sheldon source)"
 
 # load starship (after mise activation, so the mise-managed binary is on PATH)
 export STARSHIP_CONFIG="${XDG_CONFIG_HOME}/starship/starship.toml"

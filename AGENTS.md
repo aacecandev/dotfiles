@@ -69,6 +69,7 @@ pulls.
 | `mise.toml` | Bootstrap: `[dotfiles]` entries, `[vars]` defaults, `[bootstrap.packages]`, hooks, login shell |
 | `.config/mise/config.toml` | Pinned tool versions (`[tools]`) |
 | `.config/zsh/` | Shell startup (`.zshrc`) and custom functions (`.functions_custom`) |
+| `.config/sheldon/plugins.toml` | Zsh plugins (sheldon), pinned to release tags |
 | `.config/starship/starship.toml` | Prompt theme |
 | `.config/vim/.vimrc` | Vim config (vim-plug) |
 | `.config/nvim/` | Neovim config (LazyVim), plugin lock in `lazy-lock.json` |

@@ -39,6 +39,9 @@ node = "24.21.0" # provides npm and npx
 pipx = "1.18.16"
 pnpm = "12.19.0"
 pre-commit = "4.7.0"
+# Zsh plugin manager; plugins pinned in .config/sheldon/plugins.toml.
+# https://github.com/rossmacarthur/sheldon
+sheldon = "0.8.5"
 shellcheck = "0.11.0"
 sops = "3.13.3"
 starship = "1.26.0"
