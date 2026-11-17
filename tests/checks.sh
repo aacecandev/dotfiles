@@ -84,34 +84,50 @@ rm -rf "$gitrepo"
 check 'git leaves https://gitlab.com URLs unchanged' \
     test "$(git -C "$HOME" ls-remote --get-url https://gitlab.com/group/repo.git)" = https://gitlab.com/group/repo.git
 
-# The post-dotfiles hook points users without a git identity to the guide.
+# The [bootstrap.hooks.post-dotfiles] notice points users without a git
+# identity to the guide. `mise dot apply` runs the same hook as bootstrap.
 notice='Set git_name and git_email in mise.local.toml'
-check 'bootstrap notes a missing git identity' sh -c "mise dot apply '$gitcfg' 2>&1 | grep -qF '$notice'"
+check 'post-dotfiles hook (via mise dot apply) notes a missing git identity' \
+    sh -c "mise dot apply '$gitcfg' 2>&1 | grep -qF '$notice'"
 
-# Private [vars] in mise.local.toml must reach the template. Render once with
-# dummy values, assert, then remove them and render the default again.
-cat >mise.local.toml <<'EOF'
+# Private [vars] in mise.local.toml must reach the template, and every value
+# must survive characters git config treats specially (; # " \). Render once
+# with dummy values, assert each var, then remove them and render again.
+# Never touch a real mise.local.toml: if one exists, refuse to run the probe.
+if [ -e mise.local.toml ]; then
+    fail 'private-vars probe: mise.local.toml already exists, refusing to overwrite it'
+else
+    trap 'rm -f mise.local.toml' EXIT
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
+    cat >mise.local.toml <<'EOF'
 [vars]
-git_name = "Probe User"
+git_name = "Probe O'Brien; #1 \"Q\" \\"
 git_email = "probe@example.invalid"
 git_signingkey = "~/.ssh/probe.pub"
 git_credential_url = "https://git.example.invalid"
 EOF
-mise trust -y mise.local.toml >/dev/null 2>&1
-apply_out="$(mise dot apply "$gitcfg" 2>&1)"
-apply_status=$?
-check 'git config renders with private vars' test "$apply_status" -eq 0
-check 'bootstrap stays quiet once the git identity is set' \
-    sh -c '! printf "%s\n" "$1" | grep -qF "$2"' _ "$apply_out" "$notice"
-check 'git renders user.email from private vars' \
-    test "$(gitget user.email)" = probe@example.invalid
-check 'git signs commits when a signing key is set' \
-    test "$(gitget commit.gpgsign)" = true
-check 'git renders the private credential host' \
-    test "$(gitget credential.https://git.example.invalid.helper)" = store
-rm -f mise.local.toml
-check 'git config re-renders without private vars' mise dot apply "$gitcfg"
-check 'git config drops private values once vars are gone' sh -c "! git config --file '$gitcfg' --get user.email"
+    mise trust -y mise.local.toml >/dev/null 2>&1
+    apply_out="$(mise dot apply "$gitcfg" 2>&1)"
+    apply_status=$?
+    check 'git config renders with private vars' test "$apply_status" -eq 0
+    check 'git config with special characters parses' git config --file "$gitcfg" --list
+    check 'post-dotfiles hook stays quiet once the git identity is set' \
+        sh -c '! printf "%s\n" "$1" | grep -qF "$2"' _ "$apply_out" "$notice"
+    check 'git renders git_name verbatim (; # " \ survive)' \
+        test "$(gitget user.name)" = "Probe O'Brien; #1 \"Q\" \\"
+    check 'git renders git_email' test "$(gitget user.email)" = probe@example.invalid
+    check 'git renders git_signingkey' \
+        test "$(git -C "$HOME" config --type=path --get user.signingkey)" = "$HOME/.ssh/probe.pub"
+    check 'git signs commits when git_signingkey is set' test "$(gitget commit.gpgsign)" = true
+    check 'git renders git_credential_url' \
+        test "$(gitget credential.https://git.example.invalid.helper)" = store
+    rm -f mise.local.toml
+    trap - EXIT
+    check 'git config re-renders without private vars' mise dot apply "$gitcfg"
+    check 'git config drops private values once vars are gone' \
+        sh -c "! git config --file '$gitcfg' --get user.email && ! git config --file '$gitcfg' --get user.name"
+fi
 
 printf '%s check(s) failed\n' "$failures"
 [ "$failures" -eq 0 ]

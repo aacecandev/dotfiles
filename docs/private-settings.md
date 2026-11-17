@@ -47,6 +47,8 @@ template. Step 3 is just faster.
   unset and commits are not signed.
 - **Credential URL:** `helper = store` saves the credentials for that host in
   plain text in `~/.git-credentials`. Set it only if you accept that.
+- **Any characters are safe.** Values are rendered quoted, with `\` and `"`
+  escaped, so a `;`, `#`, apostrophe, or quote in a name stays intact.
 - **Unset values** render nothing. They are declared with empty defaults
   under `[vars]` in `mise.toml`, and `mise.local.toml` overrides them.
 

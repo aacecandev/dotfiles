@@ -38,6 +38,8 @@
 # Keep ~/.gitconfig as a real, untracked file. Git reads it after
 # ~/.config/git/config, and `git config --global` (or `gh auth setup-git`)
 # writes there instead of into the rendered file, so those writes survive.
+# Line-entry keys are "<file>/<id>": ~/.gitconfig is the file mise edits and
+# local-notice names the managed line. It is not a path inside a directory.
 "~/.gitconfig/local-notice" = { line = '# Machine-local git config (untracked). Shared settings: ~/.config/git/config' }
 
 # Public defaults for the private values rendered into ~/.config/git/config.
@@ -47,7 +49,7 @@
 [vars]
 git_name = ""           # user.name
 git_email = ""          # user.email
-git_signingkey = ""     # user.signingkey (SSH public key path); also turns on commit.gpgsign
+git_signingkey = ""     # user.signingkey: SSH public key path or "key::ssh-..." literal; also turns on commit.gpgsign
 git_credential_url = "" # host URL whose credentials use `helper = store`
 
 # System packages installed via apt during `mise bootstrap`. This is the single

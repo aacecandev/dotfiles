@@ -5,6 +5,8 @@
 ; ======    apply. Edit the source, then run `mise dot apply`.
 ; ======  * Private values (identity, signing key, credential
 ; ======    host) come from [vars] in the untracked mise.local.toml.
+; ======    They are rendered quoted, with \ and " escaped (the
+; ======    q_* sets below), so ; and # inside a value are safe.
 ; ======  * `git config --global` writes go to ~/.gitconfig,
 ; ======    which git reads after this file.
 ; ====== Requirements:
@@ -13,18 +15,22 @@
 ; ======  * https://github.com/cli/cli
 ; ======  * https://gitlab.com/gitlab-org/cli
 ; =======================================================
+{%- set q_name = vars.git_name | replace(from='\\', to='\\\\') | replace(from='"', to='\\"') %}
+{%- set q_email = vars.git_email | replace(from='\\', to='\\\\') | replace(from='"', to='\\"') %}
+{%- set q_signingkey = vars.git_signingkey | replace(from='\\', to='\\\\') | replace(from='"', to='\\"') %}
+{%- set q_credential_url = vars.git_credential_url | replace(from='\\', to='\\\\') | replace(from='"', to='\\"') %}
 
 [user]
   ; Refuse to commit with a guessed identity when no private vars are set.
   useConfigOnly = true
 {%- if vars.git_name %}
-  name       = {{ vars.git_name }}
+  name       = "{{ q_name }}"
 {%- endif %}
 {%- if vars.git_email %}
-  email      = {{ vars.git_email }}
+  email      = "{{ q_email }}"
 {%- endif %}
 {%- if vars.git_signingkey %}
-  signingkey = {{ vars.git_signingkey }}
+  signingkey = "{{ q_signingkey }}"
 {%- endif %}
 
 ; ====== Use a different identity per directory: keep the [user]
@@ -195,6 +201,6 @@
 ; ======   git config --global url."git@gitlab.com:".insteadOf https://gitlab.com/
 {%- if vars.git_credential_url %}
 
-[credential "{{ vars.git_credential_url }}"]
+[credential "{{ q_credential_url }}"]
   helper = store
 {%- endif %}
