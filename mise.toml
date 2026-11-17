@@ -26,6 +26,32 @@
 # Neovim config: symlink the whole directory into the repo.
 "~/.config/nvim" = { source = ".config/nvim", mode = "symlink" }
 
+# Git config: rendered from a Tera template so machine-private values (the
+# git_* [vars] below) never land in the repo. The target is a regular file
+# that every apply overwrites: edit the .tera source, not the target.
+# See https://mise.jdx.dev/dotfiles/managed.html
+"~/.config/git/config" = { source = ".config/git/config.tera", mode = "template" }
+# Global gitignore at git's default path ($XDG_CONFIG_HOME/git/ignore), so
+# core.excludesFile stays unset. Symlink the file, not ~/.config/git, so the
+# rendered config above stays out of the repo.
+"~/.config/git/ignore" = { source = ".config/git/ignore", mode = "symlink" }
+# Keep ~/.gitconfig as a real, untracked file. Git reads it after
+# ~/.config/git/config, and `git config --global` (or `gh auth setup-git`)
+# writes there instead of into the rendered file, so those writes survive.
+# Line-entry keys are "<file>/<id>": ~/.gitconfig is the file mise edits and
+# local-notice names the managed line. It is not a path inside a directory.
+"~/.gitconfig/local-notice" = { line = '# Machine-local git config (untracked). Shared settings: ~/.config/git/config' }
+
+# Public defaults for the private values rendered into ~/.config/git/config.
+# Keep them empty here and set real values in the untracked mise.local.toml,
+# whose [vars] take precedence. An empty value renders nothing.
+# See https://mise.jdx.dev/configuration/vars.html
+[vars]
+git_name = ""           # user.name
+git_email = ""          # user.email
+git_signingkey = ""     # user.signingkey: SSH public key path or "key::ssh-..." literal; also turns on commit.gpgsign
+git_credential_url = "" # host URL whose credentials use `helper = store`
+
 # System packages installed via apt during `mise bootstrap`. This is the single
 # source of truth for OS dependencies — the Dockerfile only installs the bare
 # minimum needed to download mise itself (see install.sh).
@@ -57,6 +83,14 @@ login_shell = "/usr/bin/zsh"
 # See https://mise.jdx.dev/bootstrap.html#run-order
 [bootstrap.hooks.pre-dotfiles]
 run = 'if [ -e "${HOME}/.config/nvim" ] && [ ! -L "${HOME}/.config/nvim" ]; then mv -f "${HOME}/.config/nvim" "${HOME}/.config/nvim.bak" >/dev/null 2>&1 || true; mv -f "${HOME}/.local/share/nvim" "${HOME}/.local/share/nvim.bak" >/dev/null 2>&1 || true; mv -f "${HOME}/.local/state/nvim" "${HOME}/.local/state/nvim.bak" >/dev/null 2>&1 || true; mv -f "${HOME}/.cache/nvim" "${HOME}/.cache/nvim.bak" >/dev/null 2>&1 || true; fi'
+
+# After dotfiles are deployed, tell users without a git identity where to set
+# it. Read-only and non-blocking: it only prints, so bootstrap still succeeds
+# in non-interactive runs (Docker, CI). Reads config without a scope, because
+# `git config --global` ignores the rendered ~/.config/git/config.
+# See https://mise.jdx.dev/bootstrap.html#hooks
+[bootstrap.hooks.post-dotfiles]
+run = 'if command -v git >/dev/null 2>&1 && { [ -z "$(git -C "${HOME}" config --get user.name)" ] || [ -z "$(git -C "${HOME}" config --get user.email)" ]; }; then echo "NOTE: git user.name/user.email are not set, so git refuses to commit. Set git_name and git_email in mise.local.toml (see docs/private-settings.md)."; fi'
 
 # After tools install, bootstrap vim-plug and install Nerd Fonts.
 # See https://mise.jdx.dev/bootstrap.html#hooks

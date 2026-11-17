@@ -14,20 +14,30 @@ system packages, pinned CLI tools, shell, prompt, editors, and fonts.
 - **Shell**: `zsh` with Starship as the prompt (Catppuccin Mocha).
 - **Editors**: Vim with vim-plug (plugins installed headlessly) and a LazyVim
   based Neovim config.
+- **Git**: shared settings, aliases, delta integration, and a global gitignore.
+  The config is rendered from a template, so private values stay out of the
+  repo (see [Private git settings](#private-git-settings)).
 - **Fonts**: Nerd Fonts (Hack, JetBrainsMono, FiraCode).
 
 All of the above is declared in `mise.toml` (bootstrap) and
 `.config/mise/config.toml` (tools), and deployed as symlinks into `$HOME`.
+The one exception is `~/.config/git/config`, which mise renders as a regular
+file.
 
 ## Usage
 
-On a clean machine, clone the repo and run the installer:
+On a clean machine, clone the repo, add your private settings, and run the
+installer:
 
 ```sh
 git clone https://github.com/aacecandev/dotfiles.git ~/dotfiles
 cd ~/dotfiles
+cp mise.local.toml.example mise.local.toml   # set git_name and git_email
 sh install.sh
 ```
+
+What to prepare beforehand and where each file lives is in
+[docs/private-settings.md](docs/private-settings.md#before-you-install).
 
 `install.sh` installs mise, trusts the config, and runs `mise bootstrap`.
 Symlinks point into `~/dotfiles`, so the checkout is the stable home for the
@@ -50,6 +60,21 @@ curl -fsSL https://mise.run | sh
 
 With `--from`, mise clones the repo to its own cache and runs the full
 bootstrap from there.
+
+### Private git settings
+
+The repository holds no personal data. Set your git name and email in an
+untracked `mise.local.toml` at the root of the checkout, or git refuses to
+commit. Start from the commented template:
+
+```sh
+cp mise.local.toml.example mise.local.toml   # then fill in your values
+mise trust mise.local.toml
+mise dot apply ~/.config/git/config
+```
+
+For every variable, what happens when one is missing, and how to verify,
+see [docs/private-settings.md](docs/private-settings.md).
 
 ## Testing
 
@@ -102,13 +127,16 @@ docker exec -it dots zsh -l
 
 | Path | Purpose |
 | --- | --- |
-| `mise.toml` | Bootstrap config: packages, dotfile symlinks, hooks |
+| `mise.toml` | Bootstrap config: packages, dotfiles, private-value defaults, hooks |
 | `.config/mise/config.toml` | Pinned tool versions |
 | `.config/zsh/.zshrc` | Shell startup (mise activation + Starship) |
 | `.config/starship/starship.toml` | Prompt theme |
 | `.config/vim/.vimrc` | Vim config (vim-plug) |
 | `.config/nvim/` | Neovim config (LazyVim) |
+| `.config/git/config.tera` | Git config template (private values from `mise.local.toml`) |
+| `.config/git/ignore` | Global gitignore (patterns ignored in every repo) |
 | `install.sh` | Entry point that installs mise and runs bootstrap |
 | `tests/` | End-to-end test runner (`run.sh`) and post-install checks (`checks.sh`) |
-| `docs/` | Guides, such as setting up `GITHUB_TOKEN` for the tests |
+| `docs/` | Guides: private settings in `mise.local.toml`, `GITHUB_TOKEN` for the tests |
+| `mise.local.toml.example` | Template to copy into the untracked `mise.local.toml` |
 | `logs/` | Test run logs and `errors.log` (git-ignored) |

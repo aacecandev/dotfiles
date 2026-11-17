@@ -1,0 +1,206 @@
+; =======================================================
+; ====== Shared git config, rendered by mise (mode = "template").
+; ======  * Source: .config/git/config.tera in the dotfiles repo.
+; ======  * Target: ~/.config/git/config, overwritten on every
+; ======    apply. Edit the source, then run `mise dot apply`.
+; ======  * Private values (identity, signing key, credential
+; ======    host) come from [vars] in the untracked mise.local.toml.
+; ======    They are rendered quoted, with \ and " escaped (the
+; ======    q_* sets below), so ; and # inside a value are safe.
+; ======  * `git config --global` writes go to ~/.gitconfig,
+; ======    which git reads after this file.
+; ====== Requirements:
+; ======  * https://github.com/junegunn/fzf
+; ======  * https://github.com/sharkdp/bat
+; ======  * https://github.com/cli/cli
+; ======  * https://gitlab.com/gitlab-org/cli
+; =======================================================
+{%- set q_name = vars.git_name | replace(from='\\', to='\\\\') | replace(from='"', to='\\"') %}
+{%- set q_email = vars.git_email | replace(from='\\', to='\\\\') | replace(from='"', to='\\"') %}
+{%- set q_signingkey = vars.git_signingkey | replace(from='\\', to='\\\\') | replace(from='"', to='\\"') %}
+{%- set q_credential_url = vars.git_credential_url | replace(from='\\', to='\\\\') | replace(from='"', to='\\"') %}
+
+[user]
+  ; Refuse to commit with a guessed identity when no private vars are set.
+  useConfigOnly = true
+{%- if vars.git_name %}
+  name       = "{{ q_name }}"
+{%- endif %}
+{%- if vars.git_email %}
+  email      = "{{ q_email }}"
+{%- endif %}
+{%- if vars.git_signingkey %}
+  signingkey = "{{ q_signingkey }}"
+{%- endif %}
+
+; ====== Use a different identity per directory: keep the [user]
+; ====== block in a private file and include it conditionally.
+
+; [includeIf "gitdir:~/projects/work/"]
+;   path = ~/.config/git/work.gitconfig
+
+[init]
+  defaultBranch = main
+
+[branch]
+  autoSetupRebase = always
+  sort            = -committerdate
+
+[core]
+  autocrlf     = input
+  pager        = "if [ ! -z \"$(type delta)\" ] ; then delta ; else less --tabs=2 -RFX ; fi"
+
+[delta]
+  color-only   = true
+  dark         = true
+  line-numbers = true
+  navigate     = true
+  syntax-theme = TwoDark
+  tabs         = 2
+  zero-style   = "dim syntax"
+
+[diff]
+  algorithm      = histogram
+  colorMoved     = plain
+  mnemonicPrefix = true
+  renames        = true
+
+[color]
+  ui    = always
+  log   = auto
+  diff  = auto
+  blame = highlightRecent
+
+[color "branch"]
+  current = green bold
+  local   = yellow bold
+  remote  = magenta
+
+[color "diff"]
+  frag       = magenta bold
+  meta       = yellow bold
+  new        = green bold
+  old        = red bold
+  whitespace = red reverse
+
+[color "diff-highlight"]
+  newHighlight = green bold 22
+  newNormal    = green bold
+  oldHighlight = red bold 52
+  oldNormal    = red bold
+
+[color "status"]
+  added     = green bold
+  changed   = yellow bold
+  untracked = red bold
+
+[column]
+  ui = auto
+
+[apply]
+  whitespace = fix
+
+[alias]
+  a         = "!git add $(git status --porcelain | fzf -m --accept-nth=2 --header='󱞽 Select file(s) to stage\n  Press ? to inspect untracked files' --preview-window='right:60%' --preview 'git diff --color=always {-1}' --bind '?:preview:bat --color=always --line-range :500 {-1}') && git status -uno -s"  ; (fzf) select modified+untracked files to stage
+  amend     = commit -a -s --amend
+  ca        = commit -asm
+  cm        = commit -sm
+  co        = checkout
+  conf      = "!${EDITOR} ${HOME}/.gitconfig" ; edit the machine-local config (this file is rendered by mise)
+  db        = "!git branch --color=never | awk '!/(develop|main|master)/ {print $NF}' | fzf -0 -m --marker='✘' --prompt='󱞽 Select local branch(es) to delete ' --preview-window='right:55%' --preview 'git show --color=always {-1}' | xargs -r git branch -D" ; (fzf) interactively delete branches
+  db-remote = "!git branch --color=never -r | awk '!/(develop|main|master)/ {print $NF}' | fzf -0 -m --marker='✘' --prompt='󱞽 Select remote branch(es) to delete ' --preview-window='right:55%' --preview 'git show --color=always {-1}' | sed 's|origin/||g' | xargs -r git push -d origin" ; (fzf) interactively delete branches
+  default   = "!echo ' Updating default branch...' ; git checkout $(git symbolic-ref refs/remotes/origin/HEAD --short | awk -F'/' '{print $NF}') && git pull --stat --tags" ; switch to & pull default branch
+  dir       = rev-parse --show-toplevel
+  fake      = commit --allow-empty -m 'empty commit' ; empty commit - sometimes useful for testing CI
+  fake-skip = commit --allow-empty -m 'empty commit [skip ci]' ; empty commit skipping ci - sometimes useful for testing CI
+  find      = "!git ls-files | grep -i"
+  grep      = grep -Ii
+  la        = "!git config -l | grep alias | sort | cut -c 7- | bat --style=numbers -l sh"  ; list aliases
+  lg        = log --color --graph --pretty='%C(red)%h%C(reset) -%C(auto)%d%C(reset) %s %C(green)(%ai) %C(bold blue)<%an>%C(reset)'
+  ll        = log --color --graph --pretty='%C(red)%h%C(reset) -%C(auto)%d%C(reset) %s %C(green)(%ai) %C(bold blue)<%an>%C(reset)' --decorate --stat
+  lr        = log --color --graph --pretty='%C(red)%h%C(reset) -%C(auto)%d%C(reset) %s %C(green)(%ar) %C(bold blue)<%an>%C(reset)' --date=relative -n
+  lt        = describe --tags --abbrev=0 ; get last tag
+  mr        = "!glab mr list"
+  nuke      = "!git branch -D $@ && git push origin :$@" ; nukes a branch locally and on the origin remote
+  ours      = "!f() { git co --ours $@ && git add $@; }; f" ; merge our changes
+  pf        = push --force-with-lease
+  pr        = "!gh pr list"
+  resethard = "!git reset --hard && git pull --stat --verbose --rebase"  ; discard all changes & rebase default branch
+  resetlast = reset HEAD^ --soft ; undo last (local) commit
+  resetm    = "!git diff --name-only -m | fzf -m --header='󱞽 Select file(s) to restore' --marker='✘' --preview 'git diff --color=always {-1}' | xargs -r git restore" ; (fzf) select modified files to restore
+  ss        = status -uno -s  ; short
+  st        = status
+  staged    = "!git diff --name-only --staged | fzf --preview 'bat --color=always --line-range :500 {}'"
+  theirs    = "!f() { git co --theirs $@ && git add $@; }; f" ; merge their changes
+  undo      = reset HEAD~1 --mixed
+  unstage   = "!git restore --staged $(git diff --name-only --cached | fzf -m --preview 'bat --color=always --line-range :500 {}' --header='󱞽 Select file(s) to unstage') && git status -uno" ; (fzf) select files to un-stage
+  wip       = commit -am "WIP"
+
+[help]
+  autocorrect = prompt
+
+[log]
+  date                 = iso
+  initialDecorationSet = all
+
+[merge]
+  conflictStyle = zdiff3
+  ff            = only
+
+[fetch]
+  all       = true
+  prune     = true
+  pruneTags = true
+
+[pull]
+  ff      = only
+  rebase  = true
+  stat    = true
+  verbose = true
+
+[push]
+  autoSetupRemote = true
+  default         = simple
+
+[rerere]
+  enabled    = true
+  autoupdate = true
+
+[rebase]
+  autoSquash = true
+  autoStash  = true
+  updateRefs = true
+
+[status]
+  showStash        = true
+  submoduleSummary = true
+
+[advice]
+  addEmptyPathspec   = false
+  skippedCherryPicks = false
+
+[interactive]
+  diffFilter = "if [ ! -z \"$(type delta)\" ] ; then delta ; fi"
+  singleKey  = true
+
+[gpg]
+  format = ssh
+
+[commit]
+  verbose = true
+{%- if vars.git_signingkey %}
+  ; Sign only when a signing key is configured (see [user]).
+  gpgsign = true
+{%- endif %}
+
+[format]
+  signOff = true
+
+; ====== To use SSH instead of HTTPS for a host, add the rewrite to
+; ====== ~/.gitconfig, keeping the trailing ":" and "/":
+; ======   git config --global url."git@gitlab.com:".insteadOf https://gitlab.com/
+{%- if vars.git_credential_url %}
+
+[credential "{{ q_credential_url }}"]
+  helper = store
+{%- endif %}

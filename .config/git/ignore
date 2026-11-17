@@ -1,0 +1,5 @@
+# Global gitignore: patterns ignored in every repository on this machine.
+# Git reads it by default from $XDG_CONFIG_HOME/git/ignore (~/.config/git/ignore)
+# because core.excludesFile is left unset. Keep repo-specific patterns in each
+# repo's own .gitignore. See https://git-scm.com/docs/gitignore
+**/.claude/settings.local.json
