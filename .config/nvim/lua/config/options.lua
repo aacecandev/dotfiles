@@ -32,3 +32,7 @@ opt.foldexpr = "v:lua.require'lazyvim.util'.treesitter.foldexpr()"
 -- g.mkdp_browser = "safari"
 -- g.mkdp_browser = "google-chrome"
 g.mkdp_browser = "firefox"
+
+-- python: use basedpyright (stricter checks, inlay hints) instead of pyright
+-- https://www.lazyvim.org/extras/lang/python
+g.lazyvim_python_lsp = "basedpyright"

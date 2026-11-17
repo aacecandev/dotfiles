@@ -137,6 +137,59 @@ opencode.nvim (`opencode.lua`) uses the same `<leader>a` group and is
 disabled in `disabled.lua`. Enable only one of the two at a time; check
 `opencode.lua` for its keymaps when you switch.
 
+## Python
+
+LazyVim's `lang.python` extra provides basedpyright (type checking and inlay
+hints, selected with `vim.g.lazyvim_python_lsp` in `options.lua`), ruff
+(lint and format), venv-selector, and the Python adapters for the debugger
+and test runner below. These keymaps come from LazyVim extras enabled in
+`lazyvim.json`.
+
+| Mode | Keys | Action | Source |
+| --- | --- | --- | --- |
+| n | `<leader>cv` | Select a virtualenv | `lang.python` |
+| n | `<leader>dPt` | Debug the method under the cursor | `lang.python` |
+| n | `<leader>dPc` | Debug the class under the cursor | `lang.python` |
+
+### Debugger (nvim-dap, nvim-dap-ui, debugpy)
+
+| Mode | Keys | Action | Source |
+| --- | --- | --- | --- |
+| n | `<leader>db` | Toggle breakpoint | `dap.core` |
+| n | `<leader>dB` | Conditional breakpoint | `dap.core` |
+| n | `<leader>dc` | Run / continue | `dap.core` |
+| n | `<leader>da` | Run with arguments | `dap.core` |
+| n | `<leader>dC` | Run to cursor | `dap.core` |
+| n | `<leader>dl` | Run last | `dap.core` |
+| n | `<leader>di` | Step into | `dap.core` |
+| n | `<leader>dO` | Step over | `dap.core` |
+| n | `<leader>do` | Step out | `dap.core` |
+| n | `<leader>dg` | Go to line (no execute) | `dap.core` |
+| n | `<leader>dj` / `<leader>dk` | Down / up the stack | `dap.core` |
+| n | `<leader>dP` | Pause | `dap.core` |
+| n | `<leader>dt` | Terminate | `dap.core` |
+| n | `<leader>dr` | Toggle REPL | `dap.core` |
+| n | `<leader>ds` | Session | `dap.core` |
+| n | `<leader>dw` | Widgets | `dap.core` |
+| n | `<leader>du` | Toggle DAP UI | `dap.core` |
+| n, v | `<leader>de` | Evaluate expression | `dap.core` |
+
+### Tests (neotest, neotest-python / pytest)
+
+| Mode | Keys | Action | Source |
+| --- | --- | --- | --- |
+| n | `<leader>tr` | Run nearest test | `test.core` |
+| n | `<leader>tt` | Run current file | `test.core` |
+| n | `<leader>tT` | Run all test files | `test.core` |
+| n | `<leader>tl` | Run last | `test.core` |
+| n | `<leader>td` | Debug nearest test | `test.core` |
+| n | `<leader>ta` | Attach to test | `test.core` |
+| n | `<leader>tw` | Toggle watch | `test.core` |
+| n | `<leader>ts` | Toggle summary | `test.core` |
+| n | `<leader>to` | Show output | `test.core` |
+| n | `<leader>tO` | Toggle output panel | `test.core` |
+| n | `<leader>tS` | Stop | `test.core` |
+
 ## Other tools
 
 | Mode | Keys | Action | Source |
