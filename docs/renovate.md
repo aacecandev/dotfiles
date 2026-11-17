@@ -6,13 +6,18 @@ and opens one pull request per tool update.
 
 | File | Purpose |
 | --- | --- |
-| `.github/workflows/renovate.yml` | Runs Renovate every Monday at 04:00 UTC, or on demand |
+| `.github/workflows/renovate.yml` | Runs Renovate every Monday at 04:00 UTC, on demand, and when a Dependency Dashboard checkbox is ticked |
 | `.github/renovate.json` | Renovate config: only the `mise` manager, only `.config/mise/config.toml` |
 
 Pull requests use `chore(mise): ...` commit messages, so merging them never
 creates a new version tag (see "Continuous integration" in
 [AGENTS.md](../AGENTS.md#continuous-integration)). Tools that Renovate cannot
-resolve are skipped, not reported as errors.
+resolve are skipped and listed on the Dependency Dashboard.
+
+There is no hourly PR limit (`prHourlyLimit: 0`) and no Renovate-side time
+window: the workflow's cron decides when Renovate runs. At most 10 Renovate
+pull requests are open at once (`prConcurrentLimit`); the rest wait on the
+dashboard until one is merged or closed.
 
 ## Token setup
 
@@ -51,7 +56,32 @@ and [GitHub fine-grained token permissions](https://docs.github.com/en/rest/auth
 - Automatically: every Monday at 04:00 UTC.
 - Manually: **Actions > renovate > Run workflow**, or
   `gh workflow run renovate.yml`.
+- From the Dependency Dashboard: ticking any checkbox edits the issue, which
+  starts the workflow.
 
 Review a Renovate pull request like any other tool upgrade: check the
 release notes and let the `ci` workflow (pre-commit and the bootstrap test)
 pass before merging.
+
+## Dependency Dashboard
+
+Renovate keeps one open issue titled **Dependency Dashboard** (label
+`dependencies`) with the state of every tool in `.config/mise/config.toml`.
+See the [Renovate dashboard docs](https://docs.renovatebot.com/key-concepts/dashboard/).
+
+| Section | Meaning | Checkbox |
+| --- | --- | --- |
+| Pending Approval | Major upgrades; they never get a PR on their own | Creates the PR |
+| Rate-Limited | Updates held back by the 10 open PRs limit | Creates the PR now |
+| Open | Renovate PRs currently open | Rebases or retries that PR |
+| Ignored or Blocked | Updates whose PR you closed without merging | Recreates the PR |
+| Detected dependencies | Every tool Renovate found, with its current version | None |
+| Vulnerabilities | Known OSV advisories for the pinned versions | None |
+
+Ticking a box only records the request; the workflow run it triggers does
+the work, and Renovate unticks the box when it rewrites the issue. The
+workflow ignores edits to any other issue and dashboard edits with no ticked
+box, so Renovate's own rewrites do not start new runs.
+
+Closing a Renovate PR without merging tells Renovate to skip that version;
+it moves to "Ignored or Blocked" until you tick it again.

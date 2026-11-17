@@ -10,6 +10,10 @@ on:
   schedule:
     - cron: "0 4 * * 1"
   workflow_dispatch:
+  # Re-run when a checkbox is ticked on the Dependency Dashboard issue.
+  # https://docs.renovatebot.com/key-concepts/dashboard/
+  issues:
+    types: [edited]
 
 permissions:
   contents: read
@@ -20,6 +24,13 @@ concurrency:
 
 jobs:
   renovate:
+    # On issue edits, run only for the dashboard and only when a box is
+    # ticked. Renovate's own dashboard rewrites leave every box unticked, so
+    # this also stops it from re-triggering itself.
+    if: >-
+      github.event_name != 'issues' ||
+      (github.event.issue.title == 'Dependency Dashboard' &&
+      contains(github.event.issue.body, '- [x] '))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
