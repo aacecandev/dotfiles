@@ -9,8 +9,8 @@ delta = "0.20.1"
 direnv = "2.38.2"
 eza = "0.23.5"
 fd = "10.5.2"
-flux2 = "2.10.0"
 flux-operator = "0.62.1"
+flux2 = "2.10.0"
 fzf = "0.74.5"
 git-lfs = "3.8.1"
 github-cli = "2.103.3"
@@ -39,8 +39,6 @@ node = "24.21.0" # provides npm and npx
 pipx = "1.18.16"
 pnpm = "12.19.0"
 pre-commit = "4.7.0"
-# Zsh plugin manager; plugins pinned in .config/sheldon/plugins.toml.
-# https://github.com/rossmacarthur/sheldon
 sheldon = "0.8.5"
 shellcheck = "0.11.0"
 sops = "3.13.3"
