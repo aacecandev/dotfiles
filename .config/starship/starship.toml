@@ -5,9 +5,6 @@ command_timeout = 2000
 follow_symlinks = false
 palette = 'catppuccin_mocha'
 
-# move the rest of the prompt to the right
-right_format = """$all"""
-
 [custom.git_email]
 command = "git config --get user.email"
 symbol = '󰊢 '
@@ -18,14 +15,14 @@ require_repo = true
 
 [directory]
 home_symbol = '~'
-read_only = ' '
+read_only = ' '
 read_only_style = 'red'
 truncate_to_repo = true
 truncation_length = 1
 
 [git_branch]
 style = 'fg:green'
-symbol = ' '
+symbol = ' '
 format = '$symbol(white)[$branch ]($style)'
 
 [git_commit]
@@ -49,38 +46,38 @@ symbol = ' '
 
 [python]
 style = 'teal'
-symbol = ' '
+symbol = ' '
 format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
 pyenv_prefix = ''
 pyenv_version_name = true
 
 [lua]
-symbol = ' '
+symbol = ' '
 format = '[$symbol($version )]($style)'
 
 [nodejs]
 style = 'green'
-symbol = ' '
+symbol = ' '
 format = '[$symbol($version )]($style)'
 
 [golang]
 style = 'blue'
-symbol = ' '
+symbol = ' '
 format = '[$symbol($version )]($style)'
 
 [haskell]
 style = 'blue'
-symbol = ' '
+symbol = ' '
 format = '[$symbol($version )]($style)'
 
 [rust]
 style = 'orange'
-symbol = ' '
+symbol = ' '
 format = '[$symbol($version )]($style)'
 
 [ruby]
 style = 'blue'
-symbol = ' '
+symbol = ' '
 format = '[$symbol($version )]($style)'
 
 [package]
@@ -88,13 +85,13 @@ symbol = '󰏗 '
 format = '[$symbol($version )]($style)'
 
 [aws]
-symbol = " "
+symbol = " "
 style = 'bold peach'
 format = '[\($symbol $profile\)]($style) '
 disabled = false
 
 [gcloud]
-symbol = ""
+symbol = ""
 style = 'bold cyan'
 format = '[\($symbol $project\)]($style) '
 # disabled = true
@@ -106,12 +103,12 @@ format = '[\($symbol $subscription\)]($style) '
 disabled = false
 
 [docker_context]
-symbol = ' '
+symbol = ' '
 style = 'fg:#06969A'
 format = '[$symbol] ($style) $path'
 
 [jobs]
-symbol = ' '
+symbol = ' '
 style = 'red'
 number_threshold = 1
 format = '[$symbol]($style)'
@@ -147,21 +144,3 @@ surface0 = "#313244"
 base = "#1e1e2e"
 mantle = "#181825"
 crust = "#11111b"
-
-# Customize the claude-code profile
-[profiles]
-claude-code = "$claude_model$claude_context$claude_cost"
-
-# Configure individual modules
-[claude_model]
-format = "[$symbol$model]($style) "
-symbol = "🤖 "
-style = "bold blue"
-
-[claude_context]
-format = "[$gauge $percentage]($style) "
-gauge_width = 10
-
-[claude_cost]
-format = "[$symbol$cost]($style) "
-symbol = "💰 "
