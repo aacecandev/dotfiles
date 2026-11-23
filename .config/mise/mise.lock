@@ -3083,10 +3083,10 @@ conda_deps = [
 ]
 
 [[tools.markdownlint-cli2]]
-version = "0.24.0"
-aube = { path = "locks/markdownlint-cli2/0.24.0", digest = "sha256:a0011c3d108f98555e9459eece07e5d9115965a7913a8f0c94c1ef68a95da3e5" }
+version = "0.24.2"
+aube = { path = "locks/markdownlint-cli2/0.24.2", digest = "sha256:db093e2bac71e1c526358d67e3105d4d68674de1f8a7ab8d2150ca4489f89451" }
 backend = "npm:markdownlint-cli2"
-specifiers = ["0.24.0"]
+specifiers = ["0.24.2"]
 
 [[tools.neovim]]
 version = "0.12.6"
