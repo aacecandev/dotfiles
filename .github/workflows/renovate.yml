@@ -1,9 +1,10 @@
-# Renovate: open PRs that bump the pinned tool versions in
-# .config/mise/config.toml (config in .github/renovate.json).
-# https://docs.renovatebot.com/modules/manager/mise/
+# Renovate: open PRs that bump the pinned versions in .config/mise/config.toml,
+# .pre-commit-config.yaml and .config/sheldon/plugins.toml (config in
+# .github/renovate.json).
 #
-# RENOVATE_TOKEN is a fine-grained PAT (not GITHUB_TOKEN, so Renovate's PRs
-# trigger the ci workflow). Required permissions: docs/renovate.md.
+# Authenticates as a private GitHub App (not GITHUB_TOKEN, so Renovate's PRs
+# trigger the ci workflow): repository variable RENOVATE_APP_CLIENT_ID and
+# secret RENOVATE_APP_PRIVATE_KEY. App setup and permissions: docs/renovate.md.
 name: renovate
 
 on:
@@ -34,16 +35,37 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      # Short-lived (1 h) installation token, scoped to this repository and
+      # to the permissions Renovate needs.
+      # actions/create-github-app-token v3.4.0
+      - id: app-token
+        uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc
+        with:
+          client-id: ${{ vars.RENOVATE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RENOVATE_APP_PRIVATE_KEY }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+          permission-issues: write
+          permission-pull-requests: write
+          permission-workflows: write
+
+      # Commits are authored as the App's bot user, so the API-created
+      # (platformCommit) commits match their author and show as Verified.
+      - id: bot
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+        run: |
+          id="$(gh api "/users/${APP_SLUG}[bot]" --jq .id)"
+          echo "git-author=${APP_SLUG}[bot] <${id}+${APP_SLUG}[bot]@users.noreply.github.com>" >> "$GITHUB_OUTPUT"
+
       # renovatebot/github-action v46.3.14
       - uses: renovatebot/github-action@acdd6bda8b035c99ce59d5675816af2aa65a1774
         with:
-          token: ${{ secrets.RENOVATE_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
         env:
           RENOVATE_REPOSITORIES: ${{ github.repository }}
           RENOVATE_ONBOARDING: "false"
           RENOVATE_REQUIRE_CONFIG: "required"
           RENOVATE_PLATFORM_COMMIT: "enabled"
-          # Author commits as the token owner (public noreply address) instead
-          # of Renovate's default Mend-owned account, which GitHub flags as
-          # Unverified. https://github.com/renovatebot/renovate/discussions/39309
-          RENOVATE_GIT_AUTHOR: "aacecandev <21305300+aacecandev@users.noreply.github.com>"
+          RENOVATE_GIT_AUTHOR: ${{ steps.bot.outputs.git-author }}

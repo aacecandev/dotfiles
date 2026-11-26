@@ -1,15 +1,24 @@
 # Renovate
 
-[Renovate](https://docs.renovatebot.com) keeps the tool versions pinned in
-`.config/mise/config.toml` up to date. It runs as a GitHub Actions workflow
-and opens one pull request per tool update.
+[Renovate](https://docs.renovatebot.com) keeps the pinned versions up to
+date. It runs as a GitHub Actions workflow, authenticated as a private GitHub
+App, and opens one pull request per update.
+
+| Pinned in | Renovate manager | Commit prefix |
+| --- | --- | --- |
+| `.config/mise/config.toml` (tools) | [`mise`](https://docs.renovatebot.com/modules/manager/mise/) | `chore(mise):` |
+| `.pre-commit-config.yaml` (hook `rev:`) | [`pre-commit`](https://docs.renovatebot.com/modules/manager/pre-commit/), enabled explicitly (off by default) | `chore(pre-commit):` |
+| `.config/sheldon/plugins.toml` (plugin `tag`) | [custom regex](https://docs.renovatebot.com/modules/manager/regex/) on `github = "owner/repo"` + `tag = "..."`, GitHub tags | `chore(sheldon):` |
 
 | File | Purpose |
 | --- | --- |
 | `.github/workflows/renovate.yml` | Runs Renovate every Monday at 04:00 UTC, on demand, and when a Dependency Dashboard checkbox is ticked |
-| `.github/renovate.json` | Renovate config: only the `mise` manager, only `.config/mise/config.toml` |
+| `.github/renovate.json` | Renovate config: the three managers above, nothing else |
 
-Pull requests use `chore(mise): ...` commit messages, so merging them never
+A sheldon plugin is only detected when its `tag =` line comes right after its
+`github =` line, as in the existing entries.
+
+Pull requests use `chore(...)` commit messages, so merging them never
 creates a new version tag (see "Continuous integration" in
 [AGENTS.md](../AGENTS.md#continuous-integration)). Tools that Renovate cannot
 resolve are skipped and listed on the Dependency Dashboard.
@@ -19,20 +28,22 @@ window: the workflow's cron decides when Renovate runs. At most 10 Renovate
 pull requests are open at once (`prConcurrentLimit`); the rest wait on the
 dashboard until one is merged or closed.
 
-## Token setup
+## GitHub App setup
 
-The workflow authenticates with a repository secret named `RENOVATE_TOKEN`.
-It must be a personal access token, not the automatic `GITHUB_TOKEN`: pull
-requests opened with `GITHUB_TOKEN` do not trigger other workflows, so the
-`ci` checks would never run on Renovate's pull requests.
+The workflow authenticates as a private GitHub App. Each run exchanges the
+App's private key for an installation token that expires after one hour,
+scoped to this repository only, with
+[`actions/create-github-app-token`](https://github.com/actions/create-github-app-token).
+The automatic `GITHUB_TOKEN` is not an option: pull requests opened with it
+do not trigger other workflows, so the `ci` checks would never run on
+Renovate's pull requests.
 
-1. Open GitHub **Settings > Developer settings > Personal access tokens >
-   Fine-grained tokens > Generate new token**.
-2. **Resource owner:** the account that owns this repository.
-3. **Expiration:** pick a date and put a reminder to rotate it before then.
-   An expired token makes the workflow fail.
-4. **Repository access:** *Only select repositories*, and select this
-   repository only.
+1. Open GitHub **Settings > Developer settings > GitHub Apps > New GitHub
+   App**, under the account that owns this repository.
+2. **GitHub App name:** any unique name, for example `<owner>-renovate`. Its
+   bot user (`<name>[bot]`) authors Renovate's commits.
+3. **Homepage URL:** this repository's URL.
+4. **Webhook:** untick *Active*. The workflow polls; it needs no webhook.
 5. **Repository permissions:**
 
    | Permission | Access | Why |
@@ -43,13 +54,31 @@ requests opened with `GITHUB_TOKEN` do not trigger other workflows, so the
    | Workflows | Read and write | Allow pushes to branches that touch `.github/workflows/` |
    | Metadata | Read-only | Required by GitHub; selected automatically |
 
-   Leave every other permission at *No access*.
-6. Generate the token and copy it.
-7. In the repository, open **Settings > Secrets and variables > Actions >
-   New repository secret**, name it `RENOVATE_TOKEN`, and paste the token.
+   Leave every other permission at *No access*, and every account
+   permission too.
+6. **Where can this GitHub App be installed?** *Only on this account*.
+7. Click **Create GitHub App**. On the App's page, copy the **Client ID**.
+8. Under **Private keys**, click **Generate a private key**. A `.pem` file
+   downloads.
+9. In the left menu, **Install App** > **Install** on your account >
+   *Only select repositories* > this repository.
+10. In this repository, open **Settings > Secrets and variables > Actions**:
+    - **Variables > New repository variable:** name
+      `RENOVATE_APP_CLIENT_ID`, value the Client ID.
+    - **Secrets > New repository secret:** name `RENOVATE_APP_PRIVATE_KEY`,
+      value the whole contents of the `.pem` file, including the
+      `BEGIN`/`END` lines.
+11. Delete the downloaded `.pem` file, and delete the old `RENOVATE_TOKEN`
+    secret and its fine-grained token: the workflow no longer reads them.
 
-Reference: [Renovate GitHub Action token docs](https://github.com/renovatebot/github-action#token)
-and [GitHub fine-grained token permissions](https://docs.github.com/en/rest/authentication/permissions-required-for-fine-grained-personal-access-tokens).
+The private key does not expire. To rotate it, generate a new key, update
+the secret, then delete the old key on the App's page.
+
+Commits are created through the GitHub API (`platformCommit`) and authored
+as the App's bot user, so GitHub shows them as Verified.
+
+Reference: [Renovate GitHub App authentication](https://docs.renovatebot.com/modules/platform/github/#running-as-a-github-app)
+and [registering a GitHub App](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app).
 
 ## Running it
 
@@ -66,7 +95,7 @@ pass before merging.
 ## Dependency Dashboard
 
 Renovate keeps one open issue titled **Dependency Dashboard** (label
-`dependencies`) with the state of every tool in `.config/mise/config.toml`.
+`dependencies`) with the state of every dependency in the three files above.
 See the [Renovate dashboard docs](https://docs.renovatebot.com/key-concepts/dashboard/).
 
 | Section | Meaning | Checkbox |

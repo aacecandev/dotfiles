@@ -11,7 +11,10 @@ system packages, pinned CLI tools, shell, prompt, editors, and fonts.
 - **Pinned tools** (mise `[tools]`): Neovim, Vim, Starship, Node (which
   provides `npm` and `npx`), Go, and k9s (built from source by mise's `go:`
   backend). Every tool is pinned to an exact version for reproducibility.
-- **Shell**: `zsh` with Starship as the prompt (Catppuccin Mocha).
+- **Shell**: `zsh` with Starship as the prompt (Catppuccin Mocha) and plugins
+  managed by sheldon (zsh-completions, zsh-autocomplete, zsh-autosuggestions,
+  zsh-syntax-highlighting). `~/.zshenv` sets `ZDOTDIR=~/.config/zsh`, so every
+  other zsh startup file, and the history (`.zhistory`), lives there.
 - **Editors**: Vim with vim-plug (plugins installed headlessly) and a LazyVim
   based Neovim config.
 - **Git**: shared settings, aliases, delta integration, and a global gitignore.
@@ -129,7 +132,11 @@ docker exec -it dots zsh -l
 | --- | --- |
 | `mise.toml` | Bootstrap config: packages, dotfiles, private-value defaults, hooks |
 | `.config/mise/config.toml` | Pinned tool versions |
-| `.config/zsh/.zshrc` | Shell startup (mise activation + Starship) |
+| `.config/zsh/.zshenv` | Environment for every zsh: `PATH`, XDG dirs, `ZDOTDIR` (deployed to `~/.zshenv`) |
+| `.config/zsh/.zprofile` | Login shells: mise shims (deployed to `~/.config/zsh`) |
+| `.config/zsh/.zshrc` | Interactive shells: mise activation, sheldon, Starship (deployed to `~/.config/zsh`) |
+| `.config/zsh/*.zsh` | Completion setup, keybindings, functions, fzf helpers (deployed to `~/.config/zsh`) |
+| `.config/zsh/completions/` | Bundled completion functions, added to `fpath` |
 | `.config/sheldon/plugins.toml` | Zsh plugins (sheldon), pinned to release tags |
 | `.config/starship/starship.toml` | Prompt theme |
 | `.config/vim/.vimrc` | Vim config (vim-plug) |
