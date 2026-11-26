@@ -5,7 +5,17 @@
 # See https://sheldon.cli.rs/Configuration.html
 shell = "zsh"
 
-# Real-time completion menu; runs compinit itself, so it must load first.
+# Extra completion definitions. Only adds src/ to fpath, so it must load
+# before zsh-autocomplete runs compinit.
+# https://github.com/zsh-users/zsh-completions
+[plugins.zsh-completions]
+github = "zsh-users/zsh-completions"
+tag = "0.36.0"
+dir = "src"
+apply = ["fpath"]
+
+# Real-time completion menu; runs compinit itself, so it must load right
+# after the fpath-only plugins above.
 # https://github.com/marlonrichert/zsh-autocomplete
 [plugins.zsh-autocomplete]
 github = "marlonrichert/zsh-autocomplete"

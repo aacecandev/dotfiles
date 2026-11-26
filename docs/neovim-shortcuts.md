@@ -190,6 +190,20 @@ and test runner below. These keymaps come from LazyVim extras enabled in
 | n | `<leader>tO` | Toggle output panel | `test.core` |
 | n | `<leader>tS` | Stop | `test.core` |
 
+## Learning Vim (learn-vim)
+
+An interactive tutorial with a lesson pane and an exercise pane. Progress is
+saved between sessions. It has no global keymaps; use the command.
+
+| Command | Action | Source |
+| --- | --- | --- |
+| `:LearnVim start` | Start or resume the tutorial | `learn-vim.lua` |
+| `:LearnVim next` / `:LearnVim prev` | Next / previous lesson | `learn-vim.lua` |
+| `:LearnVim lesson <m>.<l>` | Jump to a lesson, e.g. `:LearnVim lesson 2.1` | `learn-vim.lua` |
+| `:LearnVim contents` | Open the table of contents | `learn-vim.lua` |
+| `:LearnVim exc` / `:LearnVim exr` | Check / reset the current exercise | `learn-vim.lua` |
+| `:LearnVim restart` | Restart the tutorial from the beginning | `learn-vim.lua` |
+
 ## Other tools
 
 | Mode | Keys | Action | Source |

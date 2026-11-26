@@ -43,8 +43,13 @@ done <<EOF
 $entries
 EOF
 
+# ~/.zshenv moves zsh startup into ZDOTDIR; login shells get mise shims there.
+check 'zsh ZDOTDIR is ~/.config/zsh' zsh -c 'test "$ZDOTDIR" = "$HOME/.config/zsh"'
+check '$ZDOTDIR/.zprofile has the mise shims block' \
+    grep -qF 'eval "$(mise activate zsh --shims)"' "$HOME/.config/zsh/.zprofile"
+
 # Tools must be on PATH in a login + interactive zsh, as the user sees it.
-for tool in mise zsh git curl unzip fc-cache starship sheldon nvim vim node npm go k9s fd trash rtk; do
+for tool in mise zsh git curl unzip fc-cache starship sheldon nvim vim node npm go k9s fd trash rtk usage; do
     check "tool on PATH: $tool" zsh -lic "command -v $tool"
 done
 
@@ -62,6 +67,11 @@ fi
 # sheldon loads every zsh plugin in an interactive shell (and zsh survives it).
 check 'zsh plugins load (autocomplete, autosuggestions, syntax-highlighting)' zsh -lic \
     '(( $+functions[.autocomplete__main] )) && (( $+functions[_zsh_autosuggest_start] )) && (( $+functions[_zsh_highlight] ))'
+
+# zsh-autocomplete defers compinit to the first prompt, so `zsh -c` cannot
+# see _comps; assert the plugin's only effect: its completions resolve on fpath.
+check 'zsh-completions on fpath (_ufw from src/)' zsh -lic \
+    '(( ${fpath[(I)*zsh-completions/src]} )) && [[ -n ${^fpath}/_ufw(N) ]]'
 
 check 'vim-plug installed' test -f "$HOME/.vim/autoload/plug.vim"
 check 'vim loads ~/.vimrc headless' zsh -lic 'vim -E -s -u ~/.vimrc +qall'
