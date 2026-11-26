@@ -78,7 +78,7 @@ pulls.
 | `install.sh` | POSIX entry point: prerequisites, mise, `mise bootstrap` |
 | `Dockerfile` | Disposable Ubuntu 26.04 image used to test the bootstrap |
 | `tests/` | `run.sh` (host-side runner) and `checks.sh` (in-container assertions) |
-| `docs/` | Guides: `private-settings.md` (required `mise.local.toml` vars), `github-token.md` (test setup), `renovate.md` (tool updates, `RENOVATE_TOKEN`), `neovim-shortcuts.md` (custom Neovim keymaps) |
+| `docs/` | Guides: `private-settings.md` (required `mise.local.toml` vars), `github-token.md` (test setup), `renovate.md` (version updates, GitHub App setup), `neovim-shortcuts.md` (custom Neovim keymaps) |
 | `mise.local.toml` | Git-ignored, machine-local: private `[vars]` and the encrypted `GITHUB_TOKEN`. Never commit it; only the owner writes it |
 | `mise.local.toml.example` | Tracked, commented template for `mise.local.toml`; lists every private var with a placeholder |
 | `logs/` | Test run logs and `errors.log`; git-ignored, never commit its contents |
@@ -240,11 +240,15 @@ decide versions; pick them deliberately. Actions are pinned to commit SHAs
 with the release tag in a comment. Keep it that way.
 
 Renovate (`.github/workflows/renovate.yml`, config in `.github/renovate.json`)
-runs weekly and opens `chore(mise):` PRs that bump the versions pinned in
-`.config/mise/config.toml`. It needs a `RENOVATE_TOKEN` repository secret
-(fine-grained PAT) so its PRs trigger CI; the required permissions are in
-[docs/renovate.md](docs/renovate.md). Review and merge them like any other
-tool upgrade.
+runs weekly and opens `chore(mise):`, `chore(pre-commit):` and
+`chore(sheldon):` PRs that bump the versions pinned in
+`.config/mise/config.toml`, `.pre-commit-config.yaml` and
+`.config/sheldon/plugins.toml`. It authenticates as a private GitHub App
+(repository variable `RENOVATE_APP_CLIENT_ID`, secret
+`RENOVATE_APP_PRIVATE_KEY`) so its PRs trigger CI; the App setup and
+permissions are in [docs/renovate.md](docs/renovate.md). Keep each sheldon
+plugin's `tag =` line right after its `github =` line, or Renovate will not
+see it. Review and merge them like any other tool upgrade.
 
 ## Commits, review, and delivery
 
