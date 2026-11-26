@@ -12,7 +12,7 @@ system packages, pinned CLI tools, shell, prompt, editors, and fonts.
   provides `npm` and `npx`), Go, and k9s (built from source by mise's `go:`
   backend). Every tool is pinned to an exact version for reproducibility.
 - **Shell**: `zsh` with Starship as the prompt (Catppuccin Mocha) and plugins
-  managed by sheldon (zsh-autocomplete, zsh-autosuggestions,
+  managed by sheldon (zsh-completions, zsh-autocomplete, zsh-autosuggestions,
   zsh-syntax-highlighting). `~/.zshenv` sets `ZDOTDIR=~/.config/zsh`, so every
   other zsh startup file, and the history (`.zhistory`), lives there.
 - **Editors**: Vim with vim-plug (plugins installed headlessly) and a LazyVim

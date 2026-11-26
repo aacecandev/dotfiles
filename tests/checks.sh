@@ -68,6 +68,11 @@ fi
 check 'zsh plugins load (autocomplete, autosuggestions, syntax-highlighting)' zsh -lic \
     '(( $+functions[.autocomplete__main] )) && (( $+functions[_zsh_autosuggest_start] )) && (( $+functions[_zsh_highlight] ))'
 
+# zsh-autocomplete defers compinit to the first prompt, so `zsh -c` cannot
+# see _comps; assert the plugin's only effect: its completions resolve on fpath.
+check 'zsh-completions on fpath (_ufw from src/)' zsh -lic \
+    '(( ${fpath[(I)*zsh-completions/src]} )) && [[ -n ${^fpath}/_ufw(N) ]]'
+
 check 'vim-plug installed' test -f "$HOME/.vim/autoload/plug.vim"
 check 'vim loads ~/.vimrc headless' zsh -lic 'vim -E -s -u ~/.vimrc +qall'
 
