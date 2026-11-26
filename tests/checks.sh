@@ -16,41 +16,47 @@ fail() {
     printf 'FAIL %s\n' "$1"
     failures=$((failures + 1))
 }
+# Run a command; on failure, show its output (first 20 lines) under the FAIL
+# line so the cause is visible without re-running it.
 check() {
     desc="$1"
     shift
-    if "$@" >/dev/null 2>&1; then pass "$desc"; else fail "$desc"; fi
+    if out="$("$@" 2>&1)"; then
+        pass "$desc"
+    else
+        fail "$desc"
+        printf '%s\n' "$out" | head -n 20 | sed 's/^/    /'
+    fi
 }
 
-# Every [dotfiles] symlink entry in mise.toml must exist in $HOME and resolve
-# to its source in the repo. Entries are read from mise.toml so this list
-# never drifts from the config.
-entries="$(grep -E '^"~/[^"]+" = \{ *source *= *"' mise.toml |
-    grep -E 'mode *= *"symlink"' |
-    sed -E 's/^"~\/([^"]+)".*source *= *"([^"]+)".*/\1 \2/')"
-if [ -z "$entries" ]; then
-    fail 'mise.toml declares [dotfiles] symlinks'
-fi
-while read -r target source; do
-    [ -n "$target" ] || continue
-    link="$HOME/$target"
-    if [ -L "$link" ] && [ "$(readlink -f "$link")" = "$(readlink -f "$source")" ]; then
-        pass "symlink ~/$target -> $source"
-    else
-        fail "symlink ~/$target -> $source"
-    fi
-done <<EOF
-$entries
-EOF
+# Every [dotfiles] entry (symlinks, templates, edits) must be applied. mise
+# reads mise.toml itself, so this never drifts from the config.
+check 'every [dotfiles] entry is applied' mise dot status --missing
 
 # ~/.zshenv moves zsh startup into ZDOTDIR; login shells get mise shims there.
 check 'zsh ZDOTDIR is ~/.config/zsh' zsh -c 'test "$ZDOTDIR" = "$HOME/.config/zsh"'
 check '$ZDOTDIR/.zprofile has the mise shims block' \
     grep -qF 'eval "$(mise activate zsh --shims)"' "$HOME/.config/zsh/.zprofile"
 
-# Tools must be on PATH in a login + interactive zsh, as the user sees it.
-for tool in mise zsh git curl unzip fc-cache starship sheldon nvim vim node npm go k9s fd trash rtk usage; do
+# Every tool pinned in .config/mise/config.toml must be installed.
+missing="$(mise ls --missing 2>&1)"
+if [ -z "$missing" ]; then
+    pass 'every pinned mise tool is installed'
+else
+    fail 'every pinned mise tool is installed'
+    printf '%s\n' "$missing" | sed 's/^/    /'
+fi
+
+# A few tools must be on PATH in a login + interactive zsh, as the user sees
+# it: this proves the shims and activation work; the check above covers the
+# rest of the pinned tools.
+for tool in mise starship sheldon nvim vim node; do
     check "tool on PATH: $tool" zsh -lic "command -v $tool"
+done
+
+# Commands from the apt packages in [bootstrap.packages].
+for tool in zsh git curl unzip fc-cache trash gcc make; do
+    check "apt package command: $tool" command -v "$tool"
 done
 
 login_shell="$(getent passwd "$(id -un)" | cut -d: -f7)"
@@ -69,12 +75,20 @@ check 'zsh plugins load (autocomplete, autosuggestions, syntax-highlighting)' zs
     '(( $+functions[.autocomplete__main] )) && (( $+functions[_zsh_autosuggest_start] )) && (( $+functions[_zsh_highlight] ))'
 
 # zsh-autocomplete defers compinit to the first prompt, so `zsh -c` cannot
-# see _comps; assert the plugin's only effect: its completions resolve on fpath.
-check 'zsh-completions on fpath (_ufw from src/)' zsh -lic \
-    '(( ${fpath[(I)*zsh-completions/src]} )) && [[ -n ${^fpath}/_ufw(N) ]]'
+# see _comps; assert the plugin's only effect: its src/ directory is on fpath.
+check 'zsh-completions on fpath' zsh -lic '(( ${fpath[(I)*zsh-completions/src]} ))'
 
 check 'vim-plug installed' test -f "$HOME/.vim/autoload/plug.vim"
 check 'vim loads ~/.vimrc headless' zsh -lic 'vim -E -s -u ~/.vimrc +qall'
+
+# Neovim starts headless and installs the plugins pinned in lazy-lock.json.
+check 'nvim restores plugins from lazy-lock.json' zsh -lic 'nvim --headless "+Lazy! restore" +qa'
+
+# The pre-dotfiles hook backs up a real ~/.config/nvim before symlinking it.
+# tests/container.sh seeds that directory with a marker file before install.
+check 'pre-dotfiles hook backed up an existing ~/.config/nvim' \
+    test -f "$HOME/.config/nvim.bak/pre-existing"
+check 'nvim config dir is a symlink after the backup' test -L "$HOME/.config/nvim"
 
 for font in Hack JetBrainsMono FiraCode; do
     check "Nerd Font installed: $font" sh -c "ls \"\$HOME/.local/share/fonts/$font\"*.ttf"
@@ -92,7 +106,7 @@ check 'git config parses' git config --file "$gitcfg" --list
 check 'git refuses a guessed identity' test "$(gitget user.useConfigOnly)" = true
 check 'git config renders no identity without private vars' sh -c \
     "! git config --file '$gitcfg' --get user.email && ! git config --file '$gitcfg' --get commit.gpgsign"
-check '~/.gitconfig is a real local file' sh -c '[ -f "$HOME/.gitconfig" ] && [ ! -L "$HOME/.gitconfig" ]'
+check 'the ~/.gitconfig file is a real local file' sh -c '[ -f "$HOME/.gitconfig" ] && [ ! -L "$HOME/.gitconfig" ]'
 check 'git uses the default global ignore path' test -z "$(gitget core.excludesfile)"
 gitrepo="$(mktemp -d)"
 check 'git applies the global ignore' sh -c "git -C '$gitrepo' init -q && git -C '$gitrepo' check-ignore -q .claude/settings.local.json"

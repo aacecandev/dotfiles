@@ -22,7 +22,8 @@ pre-commit run --files <path> [<path> ...]
 pre-commit run shellcheck --files install.sh
 
 # End-to-end test in a disposable container (never on the host):
-# build, install, reinstall (idempotence), then tests/checks.sh.
+# buildx build, then one `docker run -it --rm` with live output: install,
+# reinstall + state diff (idempotence), then tests/checks.sh.
 # Logs land in logs/<UTC timestamp>/; failures are collected in errors.log.
 # Requires GITHUB_TOKEN age-encrypted in mise.local.toml; see docs/github-token.md.
 mise exec -- sh tests/run.sh
@@ -40,10 +41,11 @@ stylua .config/nvim
 ```
 
 A test run passes only when `tests/run.sh` exits with `0`; on failure, read
-`errors.log` in the newest `logs/` directory. `[dotfiles]` entries with
-`mode = "symlink"` are checked automatically from `mise.toml`; other modes
-(such as `template`) need explicit checks. When you add a tool, package, or
-other installed artifact, add a matching assertion to `tests/checks.sh` in
+`errors.log` in the newest `logs/` directory. Every `[dotfiles]` entry is
+checked with `mise dot status --missing` and every pinned tool with
+`mise ls --missing`, so neither needs its own assertion; what a file or tool
+does (templates rendering, plugins loading) still needs explicit checks. When
+you add an apt package or other installed artifact, add a matching assertion to `tests/checks.sh` in
 the same change.
 
 ## What this repository is
@@ -76,8 +78,8 @@ pulls.
 | `.config/git/config.tera` | Git config template rendered to `~/.config/git/config` |
 | `.config/git/ignore` | Global gitignore, symlinked to `~/.config/git/ignore` |
 | `install.sh` | POSIX entry point: prerequisites, mise, `mise bootstrap` |
-| `Dockerfile` | Disposable Ubuntu 26.04 image used to test the bootstrap |
-| `tests/` | `run.sh` (host-side runner) and `checks.sh` (in-container assertions) |
+| `Dockerfile` | Disposable Ubuntu 26.04 image (pinned by digest) used to test the bootstrap |
+| `tests/` | `run.sh` (host-side runner), `container.sh` (in-container steps and idempotence diff), `checks.sh` (in-container assertions) |
 | `docs/` | Guides: `private-settings.md` (required `mise.local.toml` vars), `github-token.md` (test setup), `renovate.md` (version updates, GitHub App setup), `neovim-shortcuts.md` (custom Neovim keymaps) |
 | `mise.local.toml` | Git-ignored, machine-local: private `[vars]` and the encrypted `GITHUB_TOKEN`. Never commit it; only the owner writes it |
 | `mise.local.toml.example` | Tracked, commented template for `mise.local.toml`; lists every private var with a placeholder |

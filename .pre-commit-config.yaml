@@ -33,11 +33,21 @@ repos:
         # ShellCheck has no zsh support, so skip zsh config files that use
         # zsh-only syntax (.zshrc and the *.zsh files in .config/zsh/) and the
         # bundled zsh completion functions under .config/zsh/completions/.
-        exclude: '(^|/)\.zshrc$|^\.config/zsh/[^/]+\.zsh$|^\.config/zsh/completions/'
+        exclude: '(^|/)\.zshrc$|^\.config/zsh/[^/]+\.zsh$|^\.config/zsh/completions/|^tests/'
         args:
           - --norc
           - --check-sourced
           - --severity=error
+          - --external-sources
+      # The test scripts get the stricter warning level: an unquoted variable
+      # or a lost exit code there hides a failing check.
+      - id: shellcheck
+        name: ShellCheck (tests, warning level)
+        files: ^tests/
+        args:
+          - --norc
+          - --check-sourced
+          - --severity=warning
           - --external-sources
 
   - repo: https://github.com/adrienverge/yamllint.git

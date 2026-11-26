@@ -1,11 +1,15 @@
-FROM ubuntu:26.04
+FROM ubuntu:26.04@sha256:d66b366dac61b575bee2aef07e9c26e8070096fbe84a3d4d3eb0da069b5d76db
 
 # Bare minimum so install.sh can run as a non-root user: sudo lets mise install
 # the apt packages declared in [bootstrap.packages]. curl/ca-certificates and all
 # other packages (git, zsh, unzip) are installed by install.sh / mise bootstrap.
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends sudo \
-    && rm -rf /var/lib/apt/lists/*
+# BuildKit cache mounts keep the apt downloads between builds; the image's
+# docker-clean hook would delete them, so it is removed first.
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+    rm -f /etc/apt/apt.conf.d/docker-clean \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends sudo
 
 # Non-root user with uid 1000 and zsh as login shell (zsh is installed later by
 # mise bootstrap). Ubuntu 26.04 ships a default 'ubuntu' user at uid 1000; drop

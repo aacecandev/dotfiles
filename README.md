@@ -100,11 +100,15 @@ For a manual check on aarch64, `mise run test:arm64` registers QEMU emulation
 and opens an interactive Termux shell with this checkout mounted read-only at
 `~/dotfiles`. It runs privileged containers and is not part of CI.
 
-It builds the image, runs `install.sh` twice in a fresh container (the second
-run checks the bootstrap is idempotent), then runs `tests/checks.sh` inside it:
-dotfile symlinks, tools on `PATH`, login shell, clean zsh startup, vim-plug,
-and Nerd Fonts. Each run writes its logs to `logs/<UTC timestamp>/`
-(`build.log`, `start.log`, `install.log`, `reinstall.log`, `checks.log`); any failure is
+It builds the image with `docker buildx`, then runs `tests/container.sh` in
+one `docker run -it --rm` session, with every step's output streamed live. Inside the container it
+seeds a pre-existing `~/.config/nvim`, runs `install.sh`, runs it again and
+compares the deployed state (idempotence), then runs `tests/checks.sh`: every
+`[dotfiles]` entry applied, every pinned tool installed, apt commands, login
+shell, clean zsh startup, zsh plugins, Vim and Neovim headless, the nvim
+backup, Nerd Fonts, and the git config template. Each run writes its logs to
+`logs/<UTC timestamp>/` (`build.log`, `install.log`, `reinstall.log`,
+`idempotence.log`, `checks.log`); any failure is
 collected in `errors.log` there and the script exits non-zero. `logs/` is
 git-ignored.
 
@@ -145,7 +149,7 @@ docker exec -it dots zsh -l
 | `.config/git/config.tera` | Git config template (private values from `mise.local.toml`) |
 | `.config/git/ignore` | Global gitignore (patterns ignored in every repo) |
 | `install.sh` | Entry point that installs mise and runs bootstrap |
-| `tests/` | End-to-end test runner (`run.sh`) and post-install checks (`checks.sh`) |
+| `tests/` | End-to-end test runner (`run.sh`), in-container steps (`container.sh`), and post-install checks (`checks.sh`) |
 | `docs/` | Guides: private settings in `mise.local.toml`, `GITHUB_TOKEN` for the tests, Neovim shortcuts |
 | `mise.local.toml.example` | Template to copy into the untracked `mise.local.toml` |
 | `logs/` | Test run logs and `errors.log` (git-ignored) |
