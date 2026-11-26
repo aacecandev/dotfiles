@@ -43,6 +43,11 @@ done <<EOF
 $entries
 EOF
 
+# ~/.zshenv moves zsh startup into ZDOTDIR; login shells get mise shims there.
+check 'zsh ZDOTDIR is ~/.config/zsh' zsh -c 'test "$ZDOTDIR" = "$HOME/.config/zsh"'
+check '$ZDOTDIR/.zprofile has the mise shims block' \
+    grep -qF 'eval "$(mise activate zsh --shims)"' "$HOME/.config/zsh/.zprofile"
+
 # Tools must be on PATH in a login + interactive zsh, as the user sees it.
 for tool in mise zsh git curl unzip fc-cache starship sheldon nvim vim node npm go k9s fd trash rtk; do
     check "tool on PATH: $tool" zsh -lic "command -v $tool"
