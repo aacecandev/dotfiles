@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "enabledManagers": ["mise", "pre-commit", "custom.regex", "github-actions"],
+  "enabledManagers": ["mise", "pre-commit", "custom.regex", "github-actions", "dockerfile"],
   "mise": {
     "managerFilePatterns": ["/^\\.config/mise/config\\.toml$/"]
   },
@@ -30,13 +30,13 @@
   "dependencyDashboard": {
     "enabled": true,
     "title": "Dependency Dashboard",
-    "header": "Version updates for `.config/mise/config.toml`, `.pre-commit-config.yaml`, `.config/sheldon/plugins.toml` and `.github/workflows/`. Tick a checkbox to act on it; the renovate workflow runs again on every dashboard edit. See [docs/renovate.md](../blob/main/docs/renovate.md).",
+    "header": "Version updates for `.config/mise/config.toml`, `.pre-commit-config.yaml`, `.config/sheldon/plugins.toml`, `.github/workflows/` and `Dockerfile`. Tick a checkbox to act on it; the renovate workflow runs again on every dashboard edit. See [docs/renovate.md](../blob/main/docs/renovate.md).",
     "labels": ["dependencies"],
     "osvVulnerabilitySummary": "all"
   },
   "packageRules": [
     {
-      "description": "Commit scope per file: chore(mise), chore(pre-commit), chore(sheldon), chore(actions).",
+      "description": "Commit scope per file: chore(mise), chore(pre-commit), chore(sheldon), chore(actions), chore(docker).",
       "matchManagers": ["mise"],
       "semanticCommitScope": "mise"
     },
@@ -52,6 +52,10 @@
     {
       "matchManagers": ["github-actions"],
       "semanticCommitScope": "actions"
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "semanticCommitScope": "docker"
     },
     {
       "description": "Major upgrades wait for approval on the Dependency Dashboard.",

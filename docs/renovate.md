@@ -10,11 +10,12 @@ App, and opens one pull request per update.
 | `.pre-commit-config.yaml` (hook `rev:`) | [`pre-commit`](https://docs.renovatebot.com/modules/manager/pre-commit/), enabled explicitly (off by default) | `chore(pre-commit):` |
 | `.config/sheldon/plugins.toml` (plugin `tag`) | [custom regex](https://docs.renovatebot.com/modules/manager/regex/) on `github = "owner/repo"` + `tag = "..."`, GitHub tags | `chore(sheldon):` |
 | `.github/workflows/*.yml` (action `uses:`) | [`github-actions`](https://docs.renovatebot.com/modules/manager/github-actions/), SHA digest plus the `# vX.Y.Z` comment | `chore(actions):` |
+| `Dockerfile` (`FROM` tag and digest) | [`dockerfile`](https://docs.renovatebot.com/modules/manager/dockerfile/) | `chore(docker):` |
 
 | File | Purpose |
 | --- | --- |
 | `.github/workflows/renovate.yml` | Runs Renovate every Monday at 04:00 UTC, on demand, and when a Dependency Dashboard checkbox is ticked |
-| `.github/renovate.json` | Renovate config: the four managers above, nothing else |
+| `.github/renovate.json` | Renovate config: the managers above, nothing else |
 
 A sheldon plugin is only detected when its `tag =` line comes right after its
 `github =` line, as in the existing entries.

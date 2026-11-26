@@ -245,9 +245,9 @@ which Renovate updates together. Keep it that way.
 
 Renovate (`.github/workflows/renovate.yml`, config in `.github/renovate.json`)
 runs weekly and opens `chore(mise):`, `chore(pre-commit):`,
-`chore(sheldon):` and `chore(actions):` PRs that bump the versions pinned in
-`.config/mise/config.toml`, `.pre-commit-config.yaml`,
-`.config/sheldon/plugins.toml` and `.github/workflows/`. It authenticates as a private GitHub App
+`chore(sheldon):`, `chore(actions):` and `chore(docker):` PRs that bump the
+versions pinned in `.config/mise/config.toml`, `.pre-commit-config.yaml`,
+`.config/sheldon/plugins.toml`, `.github/workflows/` and the `Dockerfile`. It authenticates as a private GitHub App
 (repository variable `RENOVATE_APP_CLIENT_ID`, secret
 `RENOVATE_APP_PRIVATE_KEY`); the App setup and
 permissions are in [docs/renovate.md](docs/renovate.md). Keep each sheldon
