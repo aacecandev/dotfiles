@@ -24,11 +24,13 @@
   "semanticCommitType": "chore",
   "prHourlyLimit": 0,
   "prConcurrentLimit": 10,
-  "dependencyDashboard": true,
-  "dependencyDashboardTitle": "Dependency Dashboard",
-  "dependencyDashboardHeader": "Version updates for `.config/mise/config.toml`, `.pre-commit-config.yaml` and `.config/sheldon/plugins.toml`. Tick a checkbox to act on it; the renovate workflow runs again on every dashboard edit. See [docs/renovate.md](../blob/main/docs/renovate.md).",
-  "dependencyDashboardLabels": ["dependencies"],
-  "dependencyDashboardOSVVulnerabilitySummary": "all",
+  "dependencyDashboard": {
+    "enabled": true,
+    "title": "Dependency Dashboard",
+    "header": "Version updates for `.config/mise/config.toml`, `.pre-commit-config.yaml` and `.config/sheldon/plugins.toml`. Tick a checkbox to act on it; the renovate workflow runs again on every dashboard edit. See [docs/renovate.md](../blob/main/docs/renovate.md).",
+    "labels": ["dependencies"],
+    "osvVulnerabilitySummary": "all"
+  },
   "packageRules": [
     {
       "description": "Commit scope per file: chore(mise), chore(pre-commit), chore(sheldon).",
