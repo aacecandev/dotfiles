@@ -113,7 +113,8 @@ collected in `errors.log` there and the script exits non-zero. `logs/` is
 git-ignored.
 
 `pre-commit` runs this test as the local `bootstrap-test` hook, so every
-commit must build the image and pass the checks first (`pre-commit install`
+commit that touches `mise.toml`, `install.sh`, the `Dockerfile`, `.config/` or
+`tests/` must build the image and pass the checks first (`pre-commit install`
 once per clone). GitHub Actions (`.github/workflows/ci.yml`) runs no tests:
 on every push to `main` it tags the
 commit with the next [semantic version](https://semver.org) based on the

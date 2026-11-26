@@ -231,8 +231,9 @@ Each rule gives the alternative to use instead.
 
 `pre-commit` runs locally at both the `pre-commit` and `pre-push` stages (see
 `default_stages`). The Docker test runs as the local `bootstrap-test` hook at
-the `pre-commit` stage only, so a commit needs a passing image build and
-`tests/checks.sh`. No CI job runs the gates; never bypass them.
+the `pre-commit` stage only, for commits that touch `mise.toml`, `install.sh`,
+the `Dockerfile`, `.config/` or `tests/`: such a commit needs a passing image
+build and `tests/checks.sh`. No CI job runs the gates; never bypass them.
 
 GitHub Actions (`.github/workflows/ci.yml`) runs no tests. On every push to
 `main` it tags the commit with the next semantic version derived from the
