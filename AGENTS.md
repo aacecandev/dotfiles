@@ -22,7 +22,8 @@ pre-commit run --files <path> [<path> ...]
 pre-commit run shellcheck --files install.sh
 
 # End-to-end test in a disposable container (never on the host):
-# build, install, reinstall (idempotence), then tests/checks.sh.
+# buildx build, then one `docker run -it --rm` with live output: install,
+# reinstall + state diff (idempotence), then tests/checks.sh.
 # Logs land in logs/<UTC timestamp>/; failures are collected in errors.log.
 # Requires GITHUB_TOKEN age-encrypted in mise.local.toml; see docs/github-token.md.
 mise exec -- sh tests/run.sh
@@ -40,10 +41,11 @@ stylua .config/nvim
 ```
 
 A test run passes only when `tests/run.sh` exits with `0`; on failure, read
-`errors.log` in the newest `logs/` directory. `[dotfiles]` entries with
-`mode = "symlink"` are checked automatically from `mise.toml`; other modes
-(such as `template`) need explicit checks. When you add a tool, package, or
-other installed artifact, add a matching assertion to `tests/checks.sh` in
+`errors.log` in the newest `logs/` directory. Every `[dotfiles]` entry is
+checked with `mise dot status --missing` and every pinned tool with
+`mise ls --missing`, so neither needs its own assertion; what a file or tool
+does (templates rendering, plugins loading) still needs explicit checks. When
+you add an apt package or other installed artifact, add a matching assertion to `tests/checks.sh` in
 the same change.
 
 ## What this repository is
@@ -76,8 +78,8 @@ pulls.
 | `.config/git/config.tera` | Git config template rendered to `~/.config/git/config` |
 | `.config/git/ignore` | Global gitignore, symlinked to `~/.config/git/ignore` |
 | `install.sh` | POSIX entry point: prerequisites, mise, `mise bootstrap` |
-| `Dockerfile` | Disposable Ubuntu 26.04 image used to test the bootstrap |
-| `tests/` | `run.sh` (host-side runner) and `checks.sh` (in-container assertions) |
+| `Dockerfile` | Disposable Ubuntu 26.04 image (pinned by digest) used to test the bootstrap |
+| `tests/` | `run.sh` (host-side runner), `container.sh` (in-container steps and idempotence diff), `checks.sh` (in-container assertions) |
 | `docs/` | Guides: `private-settings.md` (required `mise.local.toml` vars), `github-token.md` (test setup), `renovate.md` (version updates, GitHub App setup), `neovim-shortcuts.md` (custom Neovim keymaps) |
 | `mise.local.toml` | Git-ignored, machine-local: private `[vars]` and the encrypted `GITHUB_TOKEN`. Never commit it; only the owner writes it |
 | `mise.local.toml.example` | Tracked, commented template for `mise.local.toml`; lists every private var with a placeholder |
@@ -228,24 +230,26 @@ Each rule gives the alternative to use instead.
 ## Continuous integration
 
 `pre-commit` runs locally at both the `pre-commit` and `pre-push` stages (see
-`default_stages`), and the Docker test is the integration check. Run both
-before you hand off work.
+`default_stages`). The Docker test runs as the local `bootstrap-test` hook at
+the `pre-commit` stage only, for commits that touch `mise.toml`, `install.sh`,
+the `Dockerfile`, `.config/` or `tests/`: such a commit needs a passing image
+build and `tests/checks.sh`. No CI job runs the gates; never bypass them.
 
-GitHub Actions (`.github/workflows/ci.yml`) runs the same two commands from
-[Commands](#commands) on every pull request and push to `main`. On `main`, a
-green run tags the commit with the next semantic version derived from the
+GitHub Actions (`.github/workflows/ci.yml`) runs no tests. On every push to
+`main` it tags the commit with the next semantic version derived from the
 Conventional Commits since the last `v*` tag (breaking change: major, `feat`:
 minor, `fix`/`perf`: patch, anything else: no tag). Commit types therefore
 decide versions; pick them deliberately. Actions are pinned to commit SHAs
-with the release tag in a comment. Keep it that way.
+with the release tag in a trailing comment (`uses: owner/action@<sha> # vX.Y.Z`),
+which Renovate updates together. Keep it that way.
 
 Renovate (`.github/workflows/renovate.yml`, config in `.github/renovate.json`)
-runs weekly and opens `chore(mise):`, `chore(pre-commit):` and
-`chore(sheldon):` PRs that bump the versions pinned in
-`.config/mise/config.toml`, `.pre-commit-config.yaml` and
-`.config/sheldon/plugins.toml`. It authenticates as a private GitHub App
+runs weekly and opens `chore(mise):`, `chore(pre-commit):`,
+`chore(sheldon):`, `chore(actions):` and `chore(docker):` PRs that bump the
+versions pinned in `.config/mise/config.toml`, `.pre-commit-config.yaml`,
+`.config/sheldon/plugins.toml`, `.github/workflows/` and the `Dockerfile`. It authenticates as a private GitHub App
 (repository variable `RENOVATE_APP_CLIENT_ID`, secret
-`RENOVATE_APP_PRIVATE_KEY`) so its PRs trigger CI; the App setup and
+`RENOVATE_APP_PRIVATE_KEY`); the App setup and
 permissions are in [docs/renovate.md](docs/renovate.md). Keep each sheldon
 plugin's `tag =` line right after its `github =` line, or Renovate will not
 see it. Review and merge them like any other tool upgrade.

@@ -81,7 +81,7 @@ the secret stays on your machine. The same goes for the
 | --- | --- |
 | `mise set --age-encrypt` | Writes `GITHUB_TOKEN = { age = "<base64>" }` under `[env]` in `mise.local.toml`. It encrypts to `~/.config/mise/age.txt`, plus `~/.ssh/id_ed25519` and `~/.ssh/id_rsa` when they exist. |
 | `mise exec` / `mise run` / an activated shell | Decrypts the value with your identity and exports `GITHUB_TOKEN`. Task output shows it as `[redacted]`. |
-| `tests/run.sh` | Forwards it by name (`docker exec -e GITHUB_TOKEN`), so the value never shows up in commands or logs. |
+| `tests/run.sh` | Forwards it by name (`docker run -e GITHUB_TOKEN`), so the value never shows up in commands or logs. |
 
 ## Checklist
 

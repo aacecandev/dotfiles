@@ -1,57 +1,18 @@
-# CI: run the same gates as the local workflow (AGENTS.md "Commands"), then,
-# on main only, tag the commit with the next semantic version derived from
-# Conventional Commits since the previous tag.
+# CI: on every push to main (a merged pull request), tag the commit with the
+# next semantic version derived from Conventional Commits since the previous
+# tag. The gates (pre-commit and the bootstrap test) run locally as pre-commit
+# hooks before every commit; see .pre-commit-config.yaml and AGENTS.md.
 name: ci
 
 on:
   push:
     branches: [main]
-  pull_request:
 
 permissions:
   contents: read
 
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      # actions/checkout v7.0.1
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-
-      # Static gates: lint, format, secret scan.
-      # https://pre-commit.com
-      - name: pre-commit
-        run: pipx run pre-commit==4.7.0 run --all-files --show-diff-on-failure
-
-      # End-to-end bootstrap test in a disposable container.
-      # GITHUB_TOKEN lifts mise's GitHub API rate limit; tests/run.sh forwards
-      # it into the container by name. The automatic token is enough (no
-      # repository secret needed; secret names cannot start with GITHUB_).
-      # https://docs.github.com/en/actions/concepts/security/github_token
-      - name: Bootstrap test
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: sh tests/run.sh
-
-      # actions/upload-artifact v7.0.2
-      - name: Upload test logs
-        if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
-        with:
-          name: test-logs
-          path: logs/
-          if-no-files-found: ignore
-          # Minimum allowed retention; logs are only for debugging a failed run.
-          retention-days: 1
-
   tag:
-    needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -59,8 +20,8 @@ jobs:
       group: tag
       cancel-in-progress: false
     steps:
-      # actions/checkout v7.0.1; full history and tags to find the last version.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      # Full history and tags to find the last version.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           fetch-tags: true

@@ -33,11 +33,21 @@ repos:
         # ShellCheck has no zsh support, so skip zsh config files that use
         # zsh-only syntax (.zshrc and the *.zsh files in .config/zsh/) and the
         # bundled zsh completion functions under .config/zsh/completions/.
-        exclude: '(^|/)\.zshrc$|^\.config/zsh/[^/]+\.zsh$|^\.config/zsh/completions/'
+        exclude: '(^|/)\.zshrc$|^\.config/zsh/[^/]+\.zsh$|^\.config/zsh/completions/|^tests/'
         args:
           - --norc
           - --check-sourced
           - --severity=error
+          - --external-sources
+      # The test scripts get the stricter warning level: an unquoted variable
+      # or a lost exit code there hides a failing check.
+      - id: shellcheck
+        name: ShellCheck (tests, warning level)
+        files: ^tests/
+        args:
+          - --norc
+          - --check-sourced
+          - --severity=warning
           - --external-sources
 
   - repo: https://github.com/adrienverge/yamllint.git
@@ -71,3 +81,18 @@ repos:
     rev: 44.263.5
     hooks:
       - id: renovate-config-validator
+
+  # End-to-end bootstrap test (tests/run.sh): builds the Docker image, runs
+  # install.sh twice, then tests/checks.sh. Runs on every commit that touches
+  # what the bootstrap deploys or how it is tested, so such a commit needs a
+  # passing image build and checks; takes several minutes. mise exec
+  # decrypts GITHUB_TOKEN from mise.local.toml (docs/github-token.md).
+  - repo: local
+    hooks:
+      - id: bootstrap-test
+        name: bootstrap test (docker)
+        entry: mise exec -- sh tests/run.sh
+        language: system
+        pass_filenames: false
+        files: ^(mise\.toml|install\.sh|Dockerfile|\.config/|tests/)
+        stages: [pre-commit]
