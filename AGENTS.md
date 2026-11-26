@@ -228,12 +228,12 @@ Each rule gives the alternative to use instead.
 ## Continuous integration
 
 `pre-commit` runs locally at both the `pre-commit` and `pre-push` stages (see
-`default_stages`), and the Docker test is the integration check. Run both
-before you hand off work.
+`default_stages`). The Docker test runs as the local `bootstrap-test` hook at
+the `pre-commit` stage only, so a commit needs a passing image build and
+`tests/checks.sh`. No CI job runs the gates; never bypass them.
 
-GitHub Actions (`.github/workflows/ci.yml`) runs the same two commands from
-[Commands](#commands) on every pull request and push to `main`. On `main`, a
-green run tags the commit with the next semantic version derived from the
+GitHub Actions (`.github/workflows/ci.yml`) runs no tests. On every push to
+`main` it tags the commit with the next semantic version derived from the
 Conventional Commits since the last `v*` tag (breaking change: major, `feat`:
 minor, `fix`/`perf`: patch, anything else: no tag). Commit types therefore
 decide versions; pick them deliberately. Actions are pinned to commit SHAs

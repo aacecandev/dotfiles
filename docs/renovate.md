@@ -89,8 +89,9 @@ and [registering a GitHub App](https://docs.github.com/en/apps/creating-github-a
   starts the workflow.
 
 Review a Renovate pull request like any other tool upgrade: check the
-release notes and let the `ci` workflow (pre-commit and the bootstrap test)
-pass before merging.
+release notes, check out its branch, and run `pre-commit run --all-files`
+(the gates plus the bootstrap test) before merging. No CI job tests pull
+requests.
 
 ## Dependency Dashboard
 

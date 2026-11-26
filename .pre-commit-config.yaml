@@ -71,3 +71,17 @@ repos:
     rev: 44.263.5
     hooks:
       - id: renovate-config-validator
+
+  # End-to-end bootstrap test (tests/run.sh): builds the Docker image, runs
+  # install.sh twice, then tests/checks.sh. Runs on every commit, so a commit
+  # needs a passing image build and checks; takes several minutes. mise exec
+  # decrypts GITHUB_TOKEN from mise.local.toml (docs/github-token.md).
+  - repo: local
+    hooks:
+      - id: bootstrap-test
+        name: bootstrap test (docker)
+        entry: mise exec -- sh tests/run.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
