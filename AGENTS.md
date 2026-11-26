@@ -32,9 +32,8 @@ mise exec -- sh tests/run.sh
 mise run test:arm64
 
 # Inspect a bootstrapped container interactively
-docker run -d --name dots dotfiles-test && docker logs -f dots
-docker exec -it dots zsh -l
-docker rm -f dots
+# (bootstraps, then opens a login zsh; exit or Ctrl+D removes the container)
+docker run -it --rm dotfiles-test
 
 # Format Neovim Lua config (uses .config/nvim/stylua.toml)
 stylua .config/nvim
@@ -230,10 +229,10 @@ Each rule gives the alternative to use instead.
 ## Continuous integration
 
 `pre-commit` runs locally at both the `pre-commit` and `pre-push` stages (see
-`default_stages`). The Docker test runs as the local `bootstrap-test` hook at
-the `pre-commit` stage only, for commits that touch `mise.toml`, `install.sh`,
-the `Dockerfile`, `.config/` or `tests/`: such a commit needs a passing image
-build and `tests/checks.sh`. No CI job runs the gates; never bypass them.
+`default_stages`). The Docker test is not a hook because it takes several
+minutes: run `mise exec -- sh tests/run.sh` by hand before committing changes
+to `mise.toml`, `install.sh`, the `Dockerfile`, `.config/` or `tests/`. No CI
+job runs the gates or the test; never bypass them.
 
 GitHub Actions (`.github/workflows/ci.yml`) runs no tests. On every push to
 `main` it tags the commit with the next semantic version derived from the

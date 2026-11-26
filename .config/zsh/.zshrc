@@ -64,6 +64,10 @@ for file in "${DEFAULT_SOURCES[@]}"; do
 done
 unset file DEFAULT_SOURCES
 
+# load zsh keybindings
+# https://github.com/zsh-users/zsh/tree/master/Functions/Zle
+autoload -Uz zkbd
+
 # get zsh load time - END
 _zsh_end="$(date +%s%3N)"
 printf " %.3f s\\n" "$((_zsh_end - _zsh_start))e-3"

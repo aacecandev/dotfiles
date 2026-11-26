@@ -112,10 +112,9 @@ backup, Nerd Fonts, and the git config template. Each run writes its logs to
 collected in `errors.log` there and the script exits non-zero. `logs/` is
 git-ignored.
 
-`pre-commit` runs this test as the local `bootstrap-test` hook, so every
-commit that touches `mise.toml`, `install.sh`, the `Dockerfile`, `.config/` or
-`tests/` must build the image and pass the checks first (`pre-commit install`
-once per clone). GitHub Actions (`.github/workflows/ci.yml`) runs no tests:
+The test takes several minutes, so it is not a `pre-commit` hook: run it by
+hand before committing changes to `mise.toml`, `install.sh`, the `Dockerfile`,
+`.config/` or `tests/`. GitHub Actions (`.github/workflows/ci.yml`) runs no tests:
 on every push to `main` it tags the
 commit with the next [semantic version](https://semver.org) based on the
 [Conventional Commits](https://www.conventionalcommits.org/) since the last
@@ -127,9 +126,7 @@ To explore a bootstrapped container by hand:
 
 ```sh
 docker build -t dotfiles .
-docker run -d --name dots dotfiles
-docker logs -f dots   # wait for bootstrap to finish
-docker exec -it dots zsh -l
+docker run -it --rm dotfiles   # bootstraps, then opens zsh; exit removes it
 ```
 
 ## Layout

@@ -63,6 +63,8 @@ main() {
     install_mise
     mise --version
     run_bootstrap
+
+    exit 0
 }
 
 main "$@"

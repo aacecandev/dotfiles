@@ -116,7 +116,9 @@ run = [
   # Nerd Fonts (pinned) into ~/.local/share/fonts, then refresh the font cache.
   'mkdir -p "${HOME}/.local/share/fonts"',
   'for f in Hack JetBrainsMono FiraCode; do if ls "${HOME}/.local/share/fonts/${f}"*.ttf >/dev/null 2>&1; then echo "Nerd Font ${f} already installed, skipping"; else curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/${f}.zip" -o "/tmp/${f}.zip" && unzip -oq "/tmp/${f}.zip" -d "${HOME}/.local/share/fonts" && rm -f "/tmp/${f}.zip"; fi; done',
-  'fc-cache -f',
+  'fc-cache "${HOME}/.local/share/fonts"',
+  # Last step: mark the end of the bootstrap in logs (fc-cache prints nothing).
+  'echo "dotfiles: bootstrap complete"',
 ]
 
 # Run the end-to-end test suite in a disposable Docker container via `mise test`.
