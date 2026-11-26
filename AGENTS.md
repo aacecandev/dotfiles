@@ -237,15 +237,16 @@ GitHub Actions (`.github/workflows/ci.yml`) runs no tests. On every push to
 Conventional Commits since the last `v*` tag (breaking change: major, `feat`:
 minor, `fix`/`perf`: patch, anything else: no tag). Commit types therefore
 decide versions; pick them deliberately. Actions are pinned to commit SHAs
-with the release tag in a comment. Keep it that way.
+with the release tag in a trailing comment (`uses: owner/action@<sha> # vX.Y.Z`),
+which Renovate updates together. Keep it that way.
 
 Renovate (`.github/workflows/renovate.yml`, config in `.github/renovate.json`)
-runs weekly and opens `chore(mise):`, `chore(pre-commit):` and
-`chore(sheldon):` PRs that bump the versions pinned in
-`.config/mise/config.toml`, `.pre-commit-config.yaml` and
-`.config/sheldon/plugins.toml`. It authenticates as a private GitHub App
+runs weekly and opens `chore(mise):`, `chore(pre-commit):`,
+`chore(sheldon):` and `chore(actions):` PRs that bump the versions pinned in
+`.config/mise/config.toml`, `.pre-commit-config.yaml`,
+`.config/sheldon/plugins.toml` and `.github/workflows/`. It authenticates as a private GitHub App
 (repository variable `RENOVATE_APP_CLIENT_ID`, secret
-`RENOVATE_APP_PRIVATE_KEY`) so its PRs trigger CI; the App setup and
+`RENOVATE_APP_PRIVATE_KEY`); the App setup and
 permissions are in [docs/renovate.md](docs/renovate.md). Keep each sheldon
 plugin's `tag =` line right after its `github =` line, or Renovate will not
 see it. Review and merge them like any other tool upgrade.

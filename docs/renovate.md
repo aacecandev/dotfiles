@@ -9,11 +9,12 @@ App, and opens one pull request per update.
 | `.config/mise/config.toml` (tools) | [`mise`](https://docs.renovatebot.com/modules/manager/mise/) | `chore(mise):` |
 | `.pre-commit-config.yaml` (hook `rev:`) | [`pre-commit`](https://docs.renovatebot.com/modules/manager/pre-commit/), enabled explicitly (off by default) | `chore(pre-commit):` |
 | `.config/sheldon/plugins.toml` (plugin `tag`) | [custom regex](https://docs.renovatebot.com/modules/manager/regex/) on `github = "owner/repo"` + `tag = "..."`, GitHub tags | `chore(sheldon):` |
+| `.github/workflows/*.yml` (action `uses:`) | [`github-actions`](https://docs.renovatebot.com/modules/manager/github-actions/), SHA digest plus the `# vX.Y.Z` comment | `chore(actions):` |
 
 | File | Purpose |
 | --- | --- |
 | `.github/workflows/renovate.yml` | Runs Renovate every Monday at 04:00 UTC, on demand, and when a Dependency Dashboard checkbox is ticked |
-| `.github/renovate.json` | Renovate config: the three managers above, nothing else |
+| `.github/renovate.json` | Renovate config: the four managers above, nothing else |
 
 A sheldon plugin is only detected when its `tag =` line comes right after its
 `github =` line, as in the existing entries.
@@ -34,9 +35,9 @@ The workflow authenticates as a private GitHub App. Each run exchanges the
 App's private key for an installation token that expires after one hour,
 scoped to this repository only, with
 [`actions/create-github-app-token`](https://github.com/actions/create-github-app-token).
-The automatic `GITHUB_TOKEN` is not an option: pull requests opened with it
-do not trigger other workflows, so the `ci` checks would never run on
-Renovate's pull requests.
+The automatic `GITHUB_TOKEN` is not an option: it cannot push changes to
+`.github/workflows/` (the `github-actions` updates), and its pull requests do
+not trigger other workflows.
 
 1. Open GitHub **Settings > Developer settings > GitHub Apps > New GitHub
    App**, under the account that owns this repository.
@@ -96,7 +97,7 @@ requests.
 ## Dependency Dashboard
 
 Renovate keeps one open issue titled **Dependency Dashboard** (label
-`dependencies`) with the state of every dependency in the three files above.
+`dependencies`) with the state of every dependency in the files above.
 See the [Renovate dashboard docs](https://docs.renovatebot.com/key-concepts/dashboard/).
 
 | Section | Meaning | Checkbox |
