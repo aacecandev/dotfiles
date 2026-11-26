@@ -68,7 +68,7 @@ pulls.
 | --- | --- |
 | `mise.toml` | Bootstrap: `[dotfiles]` entries, `[vars]` defaults, `[bootstrap.packages]`, hooks, login shell |
 | `.config/mise/config.toml` | Pinned tool versions (`[tools]`) |
-| `.config/zsh/` | Shell startup (`.zshrc`) and custom functions (`.functions_custom`) |
+| `.config/zsh/` | Shell startup (`.zshenv`, `.zprofile`, `.zshrc`), completion, keybindings and functions (`*.zsh`), deployed to `~/.config/zsh` (`ZDOTDIR`) |
 | `.config/sheldon/plugins.toml` | Zsh plugins (sheldon), pinned to release tags |
 | `.config/starship/starship.toml` | Prompt theme |
 | `.config/vim/.vimrc` | Vim config (vim-plug) |
@@ -78,7 +78,7 @@ pulls.
 | `install.sh` | POSIX entry point: prerequisites, mise, `mise bootstrap` |
 | `Dockerfile` | Disposable Ubuntu 26.04 image used to test the bootstrap |
 | `tests/` | `run.sh` (host-side runner) and `checks.sh` (in-container assertions) |
-| `docs/` | Guides: `private-settings.md` (required `mise.local.toml` vars), `github-token.md` (test setup), `renovate.md` (tool updates, `RENOVATE_TOKEN`), `neovim-shortcuts.md` (custom Neovim keymaps) |
+| `docs/` | Guides: `private-settings.md` (required `mise.local.toml` vars), `github-token.md` (test setup), `renovate.md` (version updates, GitHub App setup), `neovim-shortcuts.md` (custom Neovim keymaps) |
 | `mise.local.toml` | Git-ignored, machine-local: private `[vars]` and the encrypted `GITHUB_TOKEN`. Never commit it; only the owner writes it |
 | `mise.local.toml.example` | Tracked, commented template for `mise.local.toml`; lists every private var with a placeholder |
 | `logs/` | Test run logs and `errors.log`; git-ignored, never commit its contents |
@@ -93,8 +93,9 @@ Each kind of change belongs in one place:
 - **New config files** go under `.config/<tool>/` and are deployed by adding
   a `[dotfiles]` entry in `mise.toml`. Do not drop new files at the repository
   root.
-- **Shell functions** go in `.config/zsh/.functions_custom`, not inline in
-  `.zshrc`.
+- **Shell functions** go in `.config/zsh/functions.zsh` (fzf helpers in
+  `functions_fzf.zsh`), not inline in `.zshrc`. A new `.config/zsh/*.zsh`
+  file needs its own `[dotfiles]` symlink entry in `mise.toml`.
 - **Post-install steps** (downloads, plugin installs) go in
   `[bootstrap.hooks.*]` in `mise.toml`, not in `install.sh`.
 - **Machine-private values** (name, email, signing keys, employer hosts) go
@@ -126,7 +127,7 @@ tools are guarded.
 | Language | Files | Rules |
 | --- | --- | --- |
 | POSIX `sh` | `install.sh` | `set -eu`; no bash/zsh syntax; must pass ShellCheck |
-| zsh | `.config/zsh/*` | zsh features allowed; ShellCheck skips `.zshrc`, so review by hand |
+| zsh | `.config/zsh/*` | zsh features allowed; ShellCheck skips `.zshrc` and `.config/zsh/*.zsh`, so review by hand; `.zshenv` and `.zprofile` stay bash-compatible (`# shellcheck shell=bash`) |
 | Lua | `.config/nvim/**` | StyLua: 2 spaces, 120 columns (`.config/nvim/stylua.toml`) |
 | TOML | `mise.toml`, `.config/mise/config.toml` | Comment every non-obvious entry with its purpose and a docs link |
 | YAML | `*.yaml`, `*.yml` | yamllint, relaxed profile, 500-column limit |
@@ -184,6 +185,11 @@ Each rule gives the alternative to use instead.
 
 - If the `Dockerfile` must see a new top-level path, add it to the `COPY`
   lines too. Everything under `.config/` is already copied.
+- zsh reads its startup files from `ZDOTDIR` (`~/.config/zsh`, set in
+  `.config/zsh/.zshenv`), never from `~`: deploy new zsh files there and
+  refer to them as `${ZDOTDIR}/<file>`. mise's
+  `[bootstrap.mise_shell_activate]` is off because it ignores `ZDOTDIR`;
+  `.zprofile` and `.zshrc` carry the activation lines themselves.
 - Startup files must not fail when an optional tool is missing. Guard calls
   with `(type <tool> &>/dev/null) &&` or `[ -f <file> ] && source <file>`.
 - Keep shell startup fast. `.zshrc` prints its load time. Do not add network
@@ -234,11 +240,15 @@ decide versions; pick them deliberately. Actions are pinned to commit SHAs
 with the release tag in a comment. Keep it that way.
 
 Renovate (`.github/workflows/renovate.yml`, config in `.github/renovate.json`)
-runs weekly and opens `chore(mise):` PRs that bump the versions pinned in
-`.config/mise/config.toml`. It needs a `RENOVATE_TOKEN` repository secret
-(fine-grained PAT) so its PRs trigger CI; the required permissions are in
-[docs/renovate.md](docs/renovate.md). Review and merge them like any other
-tool upgrade.
+runs weekly and opens `chore(mise):`, `chore(pre-commit):` and
+`chore(sheldon):` PRs that bump the versions pinned in
+`.config/mise/config.toml`, `.pre-commit-config.yaml` and
+`.config/sheldon/plugins.toml`. It authenticates as a private GitHub App
+(repository variable `RENOVATE_APP_CLIENT_ID`, secret
+`RENOVATE_APP_PRIVATE_KEY`) so its PRs trigger CI; the App setup and
+permissions are in [docs/renovate.md](docs/renovate.md). Keep each sheldon
+plugin's `tag =` line right after its `github =` line, or Renovate will not
+see it. Review and merge them like any other tool upgrade.
 
 ## Commits, review, and delivery
 

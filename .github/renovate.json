@@ -1,23 +1,51 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "enabledManagers": ["mise"],
+  "enabledManagers": ["mise", "pre-commit", "custom.regex"],
   "mise": {
     "managerFilePatterns": ["/^\\.config/mise/config\\.toml$/"]
   },
+  "pre-commit": {
+    "enabled": true,
+    "managerFilePatterns": ["/^\\.pre-commit-config\\.yaml$/"]
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "sheldon zsh plugins: `github = \"owner/repo\"` followed by `tag = \"...\"`.",
+      "managerFilePatterns": ["/^\\.config/sheldon/plugins\\.toml$/"],
+      "matchStrings": [
+        "github = \"(?<depName>[^\"]+)\"\\s*\\ntag = \"(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "github-tags"
+    }
+  ],
   "semanticCommits": "enabled",
   "semanticCommitType": "chore",
-  "semanticCommitScope": "mise",
   "prHourlyLimit": 0,
   "prConcurrentLimit": 10,
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "Dependency Dashboard",
-  "dependencyDashboardHeader": "Tool updates for `.config/mise/config.toml`. Tick a checkbox to act on it; the renovate workflow runs again on every dashboard edit. See [docs/renovate.md](../blob/main/docs/renovate.md).",
+  "dependencyDashboardHeader": "Version updates for `.config/mise/config.toml`, `.pre-commit-config.yaml` and `.config/sheldon/plugins.toml`. Tick a checkbox to act on it; the renovate workflow runs again on every dashboard edit. See [docs/renovate.md](../blob/main/docs/renovate.md).",
   "dependencyDashboardLabels": ["dependencies"],
   "dependencyDashboardOSVVulnerabilitySummary": "all",
   "packageRules": [
     {
-      "description": "Major tool upgrades wait for approval on the Dependency Dashboard.",
+      "description": "Commit scope per file: chore(mise), chore(pre-commit), chore(sheldon).",
+      "matchManagers": ["mise"],
+      "semanticCommitScope": "mise"
+    },
+    {
+      "matchManagers": ["pre-commit"],
+      "semanticCommitScope": "pre-commit"
+    },
+    {
+      "matchManagers": ["custom.regex"],
+      "matchFileNames": [".config/sheldon/plugins.toml"],
+      "semanticCommitScope": "sheldon"
+    },
+    {
+      "description": "Major upgrades wait for approval on the Dependency Dashboard.",
       "matchUpdateTypes": ["major"],
       "dependencyDashboardApproval": true
     }

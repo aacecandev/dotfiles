@@ -1,18 +1,25 @@
-# Put ~/.local/bin (where mise.run installs mise) on PATH before the
-# activation blocks run, so the startup files can call `mise` by name.
-# zsh reads ~/.zshenv first, so the PATH line belongs there.
 [dotfiles]
-"~/.zshenv/local-bin" = { line = 'export PATH="$HOME/.local/bin:$PATH"' }
+# ~/.zshenv is read first by every zsh, so it holds the exported environment,
+# including ~/.local/bin (where mise.run installs mise) on PATH, so the startup
+# files can call `mise` by name.
+"~/.zshenv" = { source = ".config/zsh/.zshenv", mode = "symlink" }
 
-# Deploy our minimal ~/.zshrc as a symlink into the repo. Because [dotfiles]
-# covers this path, mise does NOT inject its activation block here — the file
-# carries the `eval "$(mise activate zsh)"` line itself.
+# ~/.zshenv sets ZDOTDIR=~/.config/zsh, so zsh reads its other startup files
+# from there; every zsh file below is deployed into that directory.
+# .zshrc is a symlink covered by [dotfiles], so mise does NOT inject its
+# activation block; the file carries `eval "$(mise activate zsh)"` itself.
 # See https://mise.jdx.dev/dotfiles.html
-"~/.zshrc" = { source = ".config/zsh/.zshrc", mode = "symlink" }
-"~/.zshrc_base" = { source = ".config/zsh/.zshrc_base", mode = "symlink" }
-"~/.functions_custom" = { source = ".config/zsh/.functions_custom", mode = "symlink" }
-# zsh completions directory: symlink it so `.zshrc` can add it to FPATH.
-"~/.zsh/completions" = { source = ".config/zsh/completions", mode = "symlink" }
+"~/.config/zsh/.zshrc" = { source = ".config/zsh/.zshrc", mode = "symlink" }
+"~/.config/zsh/completion.zsh" = { source = ".config/zsh/completion.zsh", mode = "symlink" }
+"~/.config/zsh/functions.zsh" = { source = ".config/zsh/functions.zsh", mode = "symlink" }
+"~/.config/zsh/functions_fzf.zsh" = { source = ".config/zsh/functions_fzf.zsh", mode = "symlink" }
+"~/.config/zsh/keybindings.zsh" = { source = ".config/zsh/keybindings.zsh", mode = "symlink" }
+# zsh completions directory: symlink it so completion.zsh can add it to FPATH.
+"~/.config/zsh/completions" = { source = ".config/zsh/completions", mode = "symlink" }
+# Login shells read $ZDOTDIR/.zprofile, not ~/.zprofile; it carries mise's
+# shims line itself (bootstrap.mise_shell_activate ignores ZDOTDIR, so it is off).
+# See https://mise.jdx.dev/bootstrap/shell.html
+"~/.config/zsh/.zprofile" = { source = ".config/zsh/.zprofile", mode = "symlink" }
 
 # Global mise tools config: symlink it so `mise install` picks up nvim et al.
 "~/.config/mise/config.toml" = { source = ".config/mise/config.toml", mode = "symlink" }
@@ -69,10 +76,12 @@ git_credential_url = "" # host URL whose credentials use `helper = store`
 "apt:unzip" = "latest"
 "apt:trash-cli" = "latest"
 
-# Shims in ~/.zprofile (login) and full activation in ~/.zshrc (interactive).
+# Off: these fixed paths (~/.zprofile, ~/.zshrc) ignore ZDOTDIR. The shims
+# block is a [dotfiles] edit on $ZDOTDIR/.zprofile and .zshrc carries the
+# full activation itself.
 # See https://mise.jdx.dev/bootstrap/shell.html
 [bootstrap.mise_shell_activate]
-zsh = true
+zsh = false
 
 # Set the account's login shell to zsh.
 # See https://mise.jdx.dev/bootstrap/shell.html#set-your-login-shell
