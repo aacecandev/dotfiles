@@ -126,9 +126,7 @@ To explore a bootstrapped container by hand:
 
 ```sh
 docker build -t dotfiles .
-docker run -d --name dots dotfiles
-docker logs -f dots   # wait for bootstrap to finish
-docker exec -it dots zsh -l
+docker run -it --rm dotfiles   # bootstraps, then opens zsh; exit removes it
 ```
 
 ## Layout

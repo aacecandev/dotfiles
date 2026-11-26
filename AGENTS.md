@@ -32,9 +32,8 @@ mise exec -- sh tests/run.sh
 mise run test:arm64
 
 # Inspect a bootstrapped container interactively
-docker run -d --name dots dotfiles-test && docker logs -f dots
-docker exec -it dots zsh -l
-docker rm -f dots
+# (bootstraps, then opens a login zsh; exit or Ctrl+D removes the container)
+docker run -it --rm dotfiles-test
 
 # Format Neovim Lua config (uses .config/nvim/stylua.toml)
 stylua .config/nvim
