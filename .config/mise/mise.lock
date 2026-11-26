@@ -3346,6 +3346,11 @@ checksum = "sha256:393488513aed286d7a5a978a1fe79b2f5a8802927242a2d241ff10c1a8e8c
 url = "https://github.com/pre-commit/pre-commit/releases/download/v4.7.0/pre-commit-4.7.0.pyz"
 url_api = "https://api.github.com/repos/pre-commit/pre-commit/releases/assets/637459099"
 
+[[tools.rtk]]
+version = "1.2.0"
+backend = "aqua:rtk-ai/rtk"
+specifiers = ["1.2.0"]
+
 [[tools.sheldon]]
 version = "0.8.5"
 backend = "aqua:rossmacarthur/sheldon"
@@ -3817,6 +3822,11 @@ checksum = "sha256:230779ee4a729e3044d4a8ed57490b776ea1bac0671d12afbd6f5b4d1878f
 url = "https://github.com/tree-sitter/tree-sitter/releases/download/v0.27.2/tree-sitter-windows-x64.gz"
 url_api = "https://api.github.com/repos/tree-sitter/tree-sitter/releases/assets/720450892"
 provenance = "github-attestations"
+
+[[tools.usage]]
+version = "6.12.1"
+backend = "aqua:jdx/usage"
+specifiers = ["6.12.1"]
 
 [[tools.uv]]
 version = "0.13.7"
